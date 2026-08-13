@@ -24,6 +24,11 @@ pnpm install
 pnpm check   # typecheck + contract/schema validation tests
 ```
 
+## Contributing
+
+See [`CONTRIBUTING.md`](CONTRIBUTING.md) for the contribution path, local
+validation, and public-contract conventions.
+
 ## Documentation
 
 - [`AGENTS.md`](AGENTS.md) — repository routing guide
