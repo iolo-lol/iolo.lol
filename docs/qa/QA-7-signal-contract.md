@@ -2,7 +2,7 @@ kind: iolo-qa/v1
 id: QA-7-signal-contract
 spec: SPEC-7-signal-contract
 related_issue: "#8"
-status: planned
+status: passed
 owner: QA
 freshness: live
 ---

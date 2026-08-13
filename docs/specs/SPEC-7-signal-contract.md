@@ -1,7 +1,7 @@
 kind: iolo-spec/v1
 id: SPEC-7-signal-contract
 title: First Signal contract and public surface
-status: specified
+status: accepted
 related_issue: "#7"
 owner: PM
 freshness: live
