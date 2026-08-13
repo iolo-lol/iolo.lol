@@ -29,6 +29,11 @@ pnpm check   # typecheck + contract/schema validation tests
 See [`CONTRIBUTING.md`](CONTRIBUTING.md) for the contribution path, local
 validation, and public-contract conventions.
 
+## License
+
+Licensed under the [GNU Affero General Public License v3.0 or later](LICENSE)
+(AGPL-3.0-or-later).
+
 ## Documentation
 
 - [`AGENTS.md`](AGENTS.md) — repository routing guide

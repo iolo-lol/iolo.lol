@@ -5,6 +5,10 @@ GitHub issues and pull requests. Private ingestion, automation, and editorial
 implementation live in the separate `iolo-lol/engine` repository and are not
 part of this contribution path.
 
+The repository is licensed under
+[AGPL-3.0-or-later](LICENSE); by contributing you agree to license your
+contribution under the same terms.
+
 ## Getting started
 
 1. Read the [repository routing guide](AGENTS.md).
