@@ -14,6 +14,19 @@ A pnpm monorepo:
 | Package | Purpose |
 | --- | --- |
 | `packages/contracts` | Shared public contracts (JSON Schema) and validation machinery |
+| `packages/web` | Read API + web surface; static-site generator for GitHub Pages |
+
+## Live surface
+
+The first Signal is published at
+<https://iolo-lol.github.io/iolo.lol/> with API endpoints:
+
+- `api/v1/signals.json` — published signal ids
+- `api/v1/signals/<signalId>.json` — canonical Result
+- `api/v1/signals/<signalId>.history.json` — change history
+
+Canonical data lives in `data/signals/` and is entered through the governed
+publication boundary (see `docs/adr/0002-canonical-state-and-publication-boundary.md`).
 
 ## Reproducible local validation
 
@@ -22,6 +35,7 @@ Requires Node.js >= 24 and pnpm.
 ```sh
 pnpm install
 pnpm check   # typecheck + contract/schema validation tests
+pnpm --filter @iolo.lol/web generate   # render the static site into packages/web/site
 ```
 
 ## Contributing

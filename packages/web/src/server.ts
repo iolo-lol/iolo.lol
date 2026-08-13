@@ -34,7 +34,7 @@ function htmlEscape(value: string): string {
     .replaceAll('"', "&quot;");
 }
 
-function renderPage(signalsDir: string): string {
+export function renderPage(signalsDir: string): string {
   const ids = signalIds(signalsDir);
   const cards = ids
     .map((id) => {
