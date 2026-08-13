@@ -2,7 +2,7 @@ kind: iolo-qa/v1
 id: QA-9-signal-history
 spec: SPEC-9-signal-history
 related_issue: "#10"
-status: planned
+status: passed
 owner: QA
 freshness: live
 ---

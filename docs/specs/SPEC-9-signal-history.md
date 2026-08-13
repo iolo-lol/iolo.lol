@@ -1,7 +1,7 @@
 kind: iolo-spec/v1
 id: SPEC-9-signal-history
 title: Public provenance and change history
-status: specified
+status: accepted
 related_issue: "#9"
 owner: PM
 freshness: live
