@@ -4,7 +4,7 @@ import { fileURLToPath } from "node:url";
 import { DEFAULT_SIGNALS_DIR, loadHistory, loadSignal, renderPage, signalIds } from "./server.js";
 
 export const DEFAULT_OUTPUT_DIR = fileURLToPath(
-  new URL("../../../site", import.meta.url),
+  new URL("../site", import.meta.url),
 );
 
 function writeJson(outDir: string, relPath: string, body: unknown): void {
