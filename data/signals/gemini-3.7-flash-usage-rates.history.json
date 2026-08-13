@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 1,
+  "signalId": "gemini-3.7-flash-usage-rates",
+  "entries": [
+    {
+      "publishedAt": "2026-08-14T03:41:04+08:00",
+      "result": {
+        "schemaVersion": 1,
+        "signalId": "gemini-3.7-flash-usage-rates",
+        "observedAt": "2026-08-13T19:38:18.256Z",
+        "source": {
+          "url": "https://ai.google.dev/gemini-api/docs/pricing",
+          "fetchedAt": "2026-08-14T03:25:00Z",
+          "contentHash": "sha256:3deb4fd71a5f8d2c32853edc72554626e40b51e75194304ad1c70cbe83630b4f"
+        },
+        "values": [
+          {
+            "name": "input-price",
+            "unit": "per-1m-tokens",
+            "currency": "USD",
+            "statements": [
+              {
+                "value": 0.75,
+                "note": "through December 31, 2026."
+              },
+              {
+                "value": 1.5,
+                "note": "starting January 1, 2027."
+              }
+            ]
+          },
+          {
+            "name": "output-price",
+            "unit": "per-1m-tokens",
+            "currency": "USD",
+            "statements": [
+              {
+                "value": 3.75,
+                "note": "through December 31, 2026."
+              },
+              {
+                "value": 7.5,
+                "note": "starting January 1, 2027."
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}
