@@ -3,7 +3,7 @@
 Canonical, language-neutral public contracts for iolo.lol, expressed as
 [JSON Schema draft 2020-12](https://json-schema.org/draft/2020-12/schema).
 The engine repository consumes these files as the public contract source of
-truth; see [`docs/architecture.md`](../../docs/architecture.md).
+truth; see [`docs/architecture.md`](../../../docs/architecture.md).
 
 ## Conventions
 
