@@ -1,0 +1,71 @@
+{
+  "$id": "https://iolo.lol/contracts/history/v1",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Signal history",
+  "description": "Ordered change history of one Signal's canonical results. Each entry retains the full provenance-bearing Result, so every historical state is reproducible from recorded source evidence.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "signalId", "entries"],
+  "properties": {
+    "schemaVersion": {
+      "const": 1,
+      "description": "History contract major version; a breaking change is a new contract version."
+    },
+    "signalId": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+([.-][a-z0-9]+)*$",
+      "description": "Stable identity of the Signal this history tracks."
+    },
+    "entries": {
+      "type": "array",
+      "description": "Canonical changes in publication order; one entry per accepted change.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["publishedAt", "result"],
+        "properties": {
+          "publishedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When this canonical change was published."
+          },
+          "result": {
+            "$ref": "https://iolo.lol/contracts/result/v1",
+            "description": "The published Result at this point in history."
+          }
+        }
+      }
+    }
+  },
+  "examples": [
+    {
+      "schemaVersion": 1,
+      "signalId": "gemini-3.7-flash-usage-rates",
+      "entries": [
+        {
+          "publishedAt": "2026-08-14T00:00:00Z",
+          "result": {
+            "schemaVersion": 1,
+            "signalId": "gemini-3.7-flash-usage-rates",
+            "observedAt": "2026-08-14T00:00:00Z",
+            "source": {
+              "url": "https://ai.google.dev/gemini-api/docs/pricing",
+              "fetchedAt": "2026-08-14T00:00:00Z",
+              "contentHash": "sha256:1111111111111111111111111111111111111111111111111111111111111111"
+            },
+            "values": [
+              {
+                "name": "input-price",
+                "unit": "per-1m-tokens",
+                "currency": "USD",
+                "statements": [
+                  { "value": 0.75, "note": "through December 31, 2026" }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

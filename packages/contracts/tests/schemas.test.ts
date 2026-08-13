@@ -30,11 +30,17 @@ describe("public contract schemas", () => {
   });
 
   it("every schema declares examples and validates them", () => {
-    for (const file of schemaFiles()) {
-      const schema = JSON.parse(
+    const schemas = schemaFiles().map((file) => ({
+      file,
+      schema: JSON.parse(
         readFileSync(path.join(schemasDir, file), "utf8"),
-      );
-      const validate = compileSchema(schema);
+      ) as { $id?: string; examples?: unknown[] },
+    }));
+    for (const { schema } of schemas) {
+      if (schema.$id) getValidator().addSchema(schema as never);
+    }
+    for (const { file, schema } of schemas) {
+      const validate = compileSchema(schema as never);
       const examples: unknown[] = schema.examples ?? [];
       expect(
         examples.length,

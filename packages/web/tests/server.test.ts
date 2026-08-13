@@ -36,6 +36,17 @@ const FIXTURE_RESULT = {
   ],
 };
 
+const FIXTURE_HISTORY = {
+  schemaVersion: 1,
+  signalId: "gemini-3.7-flash-usage-rates",
+  entries: [
+    {
+      publishedAt: "2026-08-14T00:30:00Z",
+      result: FIXTURE_RESULT,
+    },
+  ],
+};
+
 let signalsDir: string;
 let server: ReturnType<typeof createApp>;
 let baseUrl: string;
@@ -46,6 +57,10 @@ beforeAll(async () => {
   writeFileSync(
     path.join(signalsDir, "gemini-3.7-flash-usage-rates.json"),
     JSON.stringify(FIXTURE_RESULT, null, 2),
+  );
+  writeFileSync(
+    path.join(signalsDir, "gemini-3.7-flash-usage-rates.history.json"),
+    JSON.stringify(FIXTURE_HISTORY, null, 2),
   );
   server = createApp(signalsDir);
   await new Promise<void>((resolve) => server.listen(0, resolve));
@@ -81,6 +96,19 @@ describe("read API", () => {
     const res = await fetch(`${baseUrl}/api/v1/signals/nope`);
     expect(res.status).toBe(404);
   });
+
+  it("returns the change history for a signal", async () => {
+    const res = await fetch(
+      `${baseUrl}/api/v1/signals/gemini-3.7-flash-usage-rates/history`,
+    );
+    expect(res.status).toBe(200);
+    expect(await res.json()).toEqual(FIXTURE_HISTORY);
+  });
+
+  it("returns 404 for history of an unknown signal", async () => {
+    const res = await fetch(`${baseUrl}/api/v1/signals/nope/history`);
+    expect(res.status).toBe(404);
+  });
 });
 
 describe("web surface", () => {
@@ -92,6 +120,15 @@ describe("web surface", () => {
     expect(html).toContain("0.75");
     expect(html).toContain("through December 31, 2026");
     expect(html).toContain("ai.google.dev/gemini-api/docs/pricing");
+    expect(html).toContain("sha256:aaaa");
+  });
+
+  it("renders the change history with provenance", async () => {
+    const res = await fetch(`${baseUrl}/`);
+    expect(res.status).toBe(200);
+    const html = await res.text();
+    expect(html).toContain("Change history");
+    expect(html).toContain("2026-08-14T00:30:00Z");
     expect(html).toContain("sha256:aaaa");
   });
 

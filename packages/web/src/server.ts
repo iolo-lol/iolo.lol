@@ -9,13 +9,20 @@ export const DEFAULT_SIGNALS_DIR = fileURLToPath(
 
 export function signalIds(signalsDir: string): string[] {
   return readdirSync(signalsDir)
-    .filter((name) => name.endsWith(".json"))
+    .filter(
+      (name) => name.endsWith(".json") && !name.endsWith(".history.json"),
+    )
     .map((name) => name.replace(/\.json$/, ""))
     .sort();
 }
 
 export function loadSignal(signalsDir: string, signalId: string): unknown {
   const file = path.join(signalsDir, `${signalId}.json`);
+  return JSON.parse(readFileSync(file, "utf8"));
+}
+
+export function loadHistory(signalsDir: string, signalId: string): unknown {
+  const file = path.join(signalsDir, `${signalId}.history.json`);
   return JSON.parse(readFileSync(file, "utf8"));
 }
 
@@ -57,6 +64,51 @@ function renderPage(signalsDir: string): string {
 </tr>`,
         )
         .join("\n");
+      let history = "";
+      try {
+        const doc = loadHistory(signalsDir, id) as {
+          entries: {
+            publishedAt: string;
+            result: {
+              source: { url: string; fetchedAt: string; contentHash: string };
+              values: {
+                name: string;
+                unit: string;
+                currency: string;
+                statements: { value: number; note: string }[];
+              }[];
+            };
+          }[];
+        };
+        history = `<section>
+<h3>Change history</h3>
+<ol>
+${doc.entries
+  .map(
+    (entry) => `<li>
+<p>Published <time>${htmlEscape(
+      entry.publishedAt,
+    )}</time>. Observed values: ${entry.result.values
+      .map(
+        (v) =>
+          `${htmlEscape(v.name)} ${v.statements
+            .map((s) => `${htmlEscape(s.value.toFixed(2))} ${htmlEscape(v.currency)} (${htmlEscape(s.note)})`)
+            .join(", ")}`,
+      )
+      .join("; ")}.</p>
+<p>Source: ${htmlEscape(entry.result.source.url)} (fetched <time>${htmlEscape(
+      entry.result.source.fetchedAt,
+    )}</time>, content <code>${htmlEscape(
+      entry.result.source.contentHash,
+    )}</code>)</p>
+</li>`,
+  )
+  .join("\n")}
+</ol>
+</section>`;
+      } catch {
+        history = "";
+      }
       return `<section>
 <h2>${htmlEscape(result.signalId)}</h2>
 <p>Observed at <time>${htmlEscape(result.observedAt)}</time>.</p>
@@ -69,6 +121,7 @@ function renderPage(signalsDir: string): string {
       )}</a> (fetched <time>${htmlEscape(
         result.source.fetchedAt,
       )}</time>, content <code>${htmlEscape(result.source.contentHash)}</code>)</p>
+${history}
 </section>`;
     })
     .join("\n");
@@ -110,10 +163,25 @@ export function createApp(signalsDir: string): Server {
     }
     const signalsMatch = pathname.match(/^\/api\/v1\/signals$/);
     const signalMatch = pathname.match(/^\/api\/v1\/signals\/([^/]+)$/);
+    const historyMatch = pathname.match(
+      /^\/api\/v1\/signals\/([^/]+)\/history$/,
+    );
     if (req.method === "GET") {
       if (signalsMatch) {
         sendJson(res, 200, { signals: signalIds(signalsDir) });
         return;
+      }
+      if (historyMatch) {
+        const signalId = historyMatch[1] ?? "";
+        try {
+          sendJson(res, 200, loadHistory(signalsDir, signalId));
+          return;
+        } catch {
+          sendJson(res, 404, {
+            error: `signal history not found: ${signalId}`,
+          });
+          return;
+        }
       }
       if (signalMatch) {
         const signalId = signalMatch[1] ?? "";
