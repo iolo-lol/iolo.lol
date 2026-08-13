@@ -1,0 +1,119 @@
+{
+  "$id": "https://iolo.lol/contracts/result/v1",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Result",
+  "description": "A normalized, verified observation of one Signal from an official source, with source identity and observation metadata sufficient for independent verification.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "signalId", "observedAt", "source", "values"],
+  "properties": {
+    "schemaVersion": {
+      "const": 1,
+      "description": "Result contract major version; a breaking change is a new contract version."
+    },
+    "signalId": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+([.-][a-z0-9]+)*$",
+      "description": "Stable identity of the Signal this Result observes."
+    },
+    "observedAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the observation was normalized into this Result."
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["url", "fetchedAt", "contentHash"],
+      "properties": {
+        "url": {
+          "type": "string",
+          "format": "uri",
+          "description": "Official source URL the observation was derived from."
+        },
+        "fetchedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "When the source content was fetched."
+        },
+        "contentHash": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$",
+          "description": "SHA-256 digest of the fetched source content, for reproducible verification."
+        }
+      }
+    },
+    "values": {
+      "type": "array",
+      "minItems": 1,
+      "description": "Normalized usage-rate values observed in the source.",
+      "items": { "$ref": "#/$defs/value" }
+    }
+  },
+  "$defs": {
+    "value": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "unit", "currency", "statements"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[a-z0-9-]+$",
+          "description": "Stable field name, for example input-price."
+        },
+        "unit": {
+          "const": "per-1m-tokens",
+          "description": "Rate unit; v1 covers per-1M-token usage rates."
+        },
+        "currency": {
+          "const": "USD",
+          "description": "Currency of every statement value."
+        },
+        "statements": {
+          "type": "array",
+          "minItems": 1,
+          "description": "Source statements in reading order; the first is the current rate.",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["value", "note"],
+            "properties": {
+              "value": {
+                "type": "number",
+                "exclusiveMinimum": 0,
+                "description": "Numeric rate per unit, in the statement's currency."
+              },
+              "note": {
+                "type": "string",
+                "description": "Verbatim source qualifier, for example 'through December 31, 2026'."
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "examples": [
+    {
+      "schemaVersion": 1,
+      "signalId": "gemini-3.7-flash-usage-rates",
+      "observedAt": "2026-08-14T00:00:00Z",
+      "source": {
+        "url": "https://ai.google.dev/gemini-api/docs/pricing",
+        "fetchedAt": "2026-08-14T00:00:00Z",
+        "contentHash": "sha256:1111111111111111111111111111111111111111111111111111111111111111"
+      },
+      "values": [
+        {
+          "name": "input-price",
+          "unit": "per-1m-tokens",
+          "currency": "USD",
+          "statements": [
+            { "value": 0.75, "note": "through December 31, 2026" },
+            { "value": 1.5, "note": "starting January 1, 2027" }
+          ]
+        }
+      ]
+    }
+  ]
+}

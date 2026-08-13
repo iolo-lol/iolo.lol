@@ -26,6 +26,7 @@ contracts must not require private engine implementation details.
 | Contract class | Owner | Notes |
 | --- | --- | --- |
 | Public product contracts (Signals schema, web/API contracts, community-facing formats) | `iolo-lol/iolo.lol` | Consumed by the engine; changes require a product-repo change |
+| Canonical signal state (`data/signals/*.json`) | `iolo-lol/iolo.lol` | Product-owned data conforming to public contracts; produced by the engine, entered only through the governed publication boundary ([ADR-0002](adr/0002-canonical-state-and-publication-boundary.md)) |
 | Engine-internal contracts (ingestion, automation, editorial pipelines) | `iolo-lol/engine` | Never published; may change without a public surface change |
 | Cross-repo boundary contract (this document) | `iolo-lol/iolo.lol` | The boundary decision is a public contract |
 

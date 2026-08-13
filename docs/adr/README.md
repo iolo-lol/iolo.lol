@@ -27,3 +27,4 @@ contracts in [`architecture.md`](../architecture.md) and the
 
 * [ADR template](0000-template.md)
 * [ADR-0001: Cross-repo boundary and contract ownership](0001-cross-repo-boundary.md)
+* [ADR-0002: Canonical signal state and publication boundary](0002-canonical-state-and-publication-boundary.md)
