@@ -1,0 +1,13 @@
+{
+  "name": "iolo.lol",
+  "private": true,
+  "packageManager": "pnpm@11.11.0",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "typecheck": "pnpm -r run typecheck",
+    "test": "pnpm -r run test",
+    "check": "pnpm typecheck && pnpm test"
+  }
+}
