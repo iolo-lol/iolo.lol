@@ -30,9 +30,9 @@ Runs performed 2026-08-14/15.
 | 7 | Usable homepage/index/detail/history flows | headless Chromium 360/1280 px, all pages, no horizontal overflow | pass |
 | 8 | Canonical iolo.lol URLs | all links/canonical/feed/sitemap use `https://iolo.lol/` | pass (ADR-0004) |
 | 9 | Atom feed + sitemap | valid Atom (2 entries, unique ids, newest first, provenance), 12-url sitemap | pass |
-| 10 | At least one scheduled local Agent run | operator scheduling agent per hand-off contract | planned (QA-6 REQ-006) |
+| 10 | At least one scheduled local Agent run | operator scheduling agent per hand-off contract | pending (external) |
 | 11 | Control-plane Agent cannot bypass deterministic validation / PublishPolicy | agent routes every Signal through `runPipeline` readOnly; tests | pass |
-| 12 | Private GitHub cron no longer required | live.yml has no schedule trigger; workflow_dispatch fallback | pass |
+| 12 | Private GitHub cron no longer required | live.yml has no schedule trigger; workflow_dispatch fallback (manual run 21:01, orchestrator github-actions) | pass |
 | 13 | Product CI/Pages + engine CI at accepted commits | GitHub Actions runs green | pass |
 
 ## Architect confirmation
