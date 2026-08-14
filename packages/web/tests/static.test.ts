@@ -26,6 +26,10 @@ describe("static site generator", () => {
     expect(files).toEqual([
       "index.html",
       "api/v1/signals.json",
+      "feed.xml",
+      "sitemap.xml",
+      "api/v1/signals/deepseek-v4-flash-usage-rates.json",
+      "api/v1/signals/deepseek-v4-flash-usage-rates.history.json",
       "api/v1/signals/gemini-3.7-flash-usage-rates.json",
       "api/v1/signals/gemini-3.7-flash-usage-rates.history.json",
     ]);
@@ -80,6 +84,8 @@ describe("static site generator", () => {
     expect(files).toEqual([
       "index.html",
       "api/v1/signals.json",
+      "feed.xml",
+      "sitemap.xml",
       "api/v1/signals/x.json",
     ]);
     expect(
