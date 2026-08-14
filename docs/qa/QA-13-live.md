@@ -2,7 +2,7 @@ kind: iolo-qa/v1
 id: QA-13-live
 spec: SPEC-13-public-runtime
 related_issue: "#14"
-status: planned
+status: passed
 owner: QA
 freshness: live
 ---

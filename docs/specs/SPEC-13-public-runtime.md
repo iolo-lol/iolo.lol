@@ -1,7 +1,7 @@
 kind: iolo-spec/v1
 id: SPEC-13-public-runtime
 title: Public runtime for the first Signal
-status: specified
+status: accepted
 related_issue: "#13"
 owner: PM
 freshness: live
