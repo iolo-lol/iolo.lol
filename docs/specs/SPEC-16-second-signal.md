@@ -1,7 +1,7 @@
 kind: iolo-spec/v1
 id: SPEC-16-second-signal
 title: Second Signal — DeepSeek usage rates
-status: specified
+status: accepted
 related_issue: "#16"
 owner: PM
 freshness: live

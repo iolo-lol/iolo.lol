@@ -1,7 +1,7 @@
 kind: iolo-spec/v1
 id: SPEC-19-human-facing-website
 title: Human-facing Signals website
-status: specified
+status: accepted
 related_issue: "#19"
 owner: PM
 freshness: live

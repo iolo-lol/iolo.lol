@@ -2,7 +2,7 @@ kind: iolo-qa/v1
 id: QA-18-m4-acceptance
 spec: M4 acceptance (iolo.lol#15)
 related_issue: "#18"
-status: running
+status: passed
 owner: QA
 freshness: live
 ---

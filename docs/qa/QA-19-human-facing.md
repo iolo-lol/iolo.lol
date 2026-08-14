@@ -2,7 +2,7 @@ kind: iolo-qa/v1
 id: QA-19-human-facing
 spec: SPEC-19-human-facing-website
 related_issue: "#18"
-status: running
+status: passed
 owner: QA
 freshness: live
 ---

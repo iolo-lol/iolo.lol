@@ -2,7 +2,7 @@ kind: iolo-qa/v1
 id: QA-6-local-agent
 spec: engine SPEC-6-local-agent
 related_issue: "#6"
-status: running
+status: passed
 owner: QA
 freshness: live
 ---

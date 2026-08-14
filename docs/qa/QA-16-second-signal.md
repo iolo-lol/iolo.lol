@@ -2,7 +2,7 @@ kind: iolo-qa/v1
 id: QA-16-second-signal
 spec: SPEC-16-second-signal
 related_issue: "#18"
-status: planned
+status: passed
 owner: QA
 freshness: live
 ---
