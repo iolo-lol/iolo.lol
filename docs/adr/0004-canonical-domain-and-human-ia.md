@@ -36,9 +36,13 @@ project URL is the verified serving point.
    `iolo.lol` so that once DNS points `iolo.lol` at GitHub Pages
    (`CNAME iolo.lol → iolo-lol.github.io`), the canonical origin serves the
    site. DNS configuration is a domain-administration action outside
-   repository scope; until it resolves, the Pages project URL still serves
-   the identical build, and links/metadata continue to use the canonical
-   `https://iolo.lol/` origin so no link rewriting is needed when DNS lands.
+   repository scope. Observed sequencing constraint (recorded during M4
+   acceptance): GitHub Pages redirects the project URL to the configured
+   custom domain even before DNS verification, so the custom domain is
+   applied only when DNS is pointed, and the Pages project URL continues to
+   serve the identical build in the meantime. Links/metadata always use the
+   canonical `https://iolo.lol/` origin, so no link rewriting is needed when
+   the domain lands.
 3. **Information architecture**: the web package is rebuilt from a single
    QA/reference page into a small static multi-page information product,
    derived entirely from product-owned canonical data:
