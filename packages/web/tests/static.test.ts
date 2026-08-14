@@ -39,7 +39,12 @@ describe("static site generator", () => {
     );
     expect(
       JSON.parse(readFileSync(path.join(outDir, "api/v1/signals.json"), "utf8")),
-    ).toEqual({ signals: ["gemini-3.7-flash-usage-rates"] });
+    ).toEqual({
+      signals: [
+        "deepseek-v4-flash-usage-rates",
+        "gemini-3.7-flash-usage-rates",
+      ],
+    });
     expect(
       JSON.parse(
         readFileSync(
