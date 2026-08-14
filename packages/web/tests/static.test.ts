@@ -1,4 +1,10 @@
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import {
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  writeFileSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
@@ -20,11 +26,18 @@ const REAL_HISTORY = JSON.parse(
 );
 
 describe("static site generator", () => {
-  it("renders index.html and API files from the committed canonical data", () => {
+  it("renders the human-facing pages and API files from canonical data", () => {
     const outDir = mkdtempSync(path.join(tmpdir(), "iolo-static-"));
     const files = generateSite(DEFAULT_SIGNALS_DIR, outDir);
     expect(files).toEqual([
       "index.html",
+      "signals/index.html",
+      "changes/index.html",
+      "404.html",
+      "signals/deepseek-v4-flash-usage-rates/index.html",
+      "signals/deepseek-v4-flash-usage-rates/history/index.html",
+      "signals/gemini-3.7-flash-usage-rates/index.html",
+      "signals/gemini-3.7-flash-usage-rates/history/index.html",
       "api/v1/signals.json",
       "feed.xml",
       "sitemap.xml",
@@ -34,9 +47,11 @@ describe("static site generator", () => {
       "api/v1/signals/gemini-3.7-flash-usage-rates.history.json",
     ]);
 
-    expect(readFileSync(path.join(outDir, "index.html"), "utf8")).toContain(
-      REAL_RESULT.signalId,
-    );
+    const home = readFileSync(path.join(outDir, "index.html"), "utf8");
+    expect(home).toContain("Gemini 3.7 Flash usage rates");
+    expect(home).toContain("DeepSeek V4 Flash usage rates");
+    expect(home).toContain("What are Signals?");
+
     expect(
       JSON.parse(readFileSync(path.join(outDir, "api/v1/signals.json"), "utf8")),
     ).toEqual({
@@ -69,6 +84,49 @@ describe("static site generator", () => {
     ).toEqual(REAL_HISTORY);
   });
 
+  it("renders detail and history pages for each signal", () => {
+    const outDir = mkdtempSync(path.join(tmpdir(), "iolo-static-"));
+    generateSite(DEFAULT_SIGNALS_DIR, outDir);
+    const detail = readFileSync(
+      path.join(
+        outDir,
+        "signals/gemini-3.7-flash-usage-rates/index.html",
+      ),
+      "utf8",
+    );
+    expect(detail).toContain("Current state");
+    expect(detail).toContain("Input price");
+    expect(detail).toContain("0.75 USD per 1M tokens");
+    expect(detail).toContain("ai.google.dev/gemini-api/docs/pricing");
+    expect(detail).toContain("Verification details");
+    expect(detail).toContain("Content hash:");
+    const history = readFileSync(
+      path.join(
+        outDir,
+        "signals/gemini-3.7-flash-usage-rates/history/index.html",
+      ),
+      "utf8",
+    );
+    expect(history).toContain("change history");
+    expect(history).toContain("sha256:");
+  });
+
+  it("uses the canonical iolo.lol origin in canonical links and feed/sitemap", () => {
+    const outDir = mkdtempSync(path.join(tmpdir(), "iolo-static-"));
+    generateSite(DEFAULT_SIGNALS_DIR, outDir);
+    const home = readFileSync(path.join(outDir, "index.html"), "utf8");
+    expect(home).toContain('rel="canonical" href="https://iolo.lol/"');
+    const sitemap = readFileSync(path.join(outDir, "sitemap.xml"), "utf8");
+    expect(sitemap).toContain("<loc>https://iolo.lol/</loc>");
+    expect(sitemap).toContain(
+      "<loc>https://iolo.lol/signals/gemini-3.7-flash-usage-rates/</loc>",
+    );
+    const feed = readFileSync(path.join(outDir, "feed.xml"), "utf8");
+    expect(feed).toContain(
+      "https://iolo.lol/signals/gemini-3.7-flash-usage-rates/history/",
+    );
+  });
+
   it("skips history for a signal without one and renders from any data dir", () => {
     const signalsDir = mkdtempSync(path.join(tmpdir(), "iolo-signals-"));
     const outDir = mkdtempSync(path.join(tmpdir(), "iolo-static-"));
@@ -79,7 +137,8 @@ describe("static site generator", () => {
       source: {
         url: "https://example.com/source",
         fetchedAt: "2026-08-14T00:00:00Z",
-        contentHash: "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+        contentHash:
+          "sha256:0000000000000000000000000000000000000000000000000000000000000000",
       },
       values: [],
     };
@@ -88,13 +147,17 @@ describe("static site generator", () => {
     const files = generateSite(signalsDir, outDir);
     expect(files).toEqual([
       "index.html",
+      "signals/index.html",
+      "changes/index.html",
+      "404.html",
+      "signals/x/index.html",
       "api/v1/signals.json",
       "feed.xml",
       "sitemap.xml",
       "api/v1/signals/x.json",
     ]);
     expect(
-      existsSync(path.join(outDir, "api/v1/signals/x.history.json")),
+      existsSync(path.join(outDir, "signals/x/history/index.html")),
     ).toBe(false);
   });
 });

@@ -112,24 +112,60 @@ describe("read API", () => {
 });
 
 describe("web surface", () => {
-  it("renders values with provenance", async () => {
+  it("home explains iolo.lol and Signals and shows human signal names", async () => {
     const res = await fetch(`${baseUrl}/`);
     expect(res.status).toBe(200);
     const html = await res.text();
-    expect(html).toContain("gemini-3.7-flash-usage-rates");
-    expect(html).toContain("0.75");
+    expect(html).toContain("What are Signals?");
+    expect(html).toContain("Gemini 3.7 Flash usage rates");
+    expect(html).not.toContain("<script>");
+  });
+
+  it("signals index lists signals with human labels and freshness", async () => {
+    const res = await fetch(`${baseUrl}/signals/`);
+    expect(res.status).toBe(200);
+    const html = await res.text();
+    expect(html).toContain("Gemini 3.7 Flash usage rates");
+    expect(html).toContain("0.75 USD per 1M tokens");
+    expect(html).toContain("Last checked");
+  });
+
+  it("signal detail shows current state, source, and verification secondary", async () => {
+    const res = await fetch(
+      `${baseUrl}/signals/gemini-3.7-flash-usage-rates/`,
+    );
+    expect(res.status).toBe(200);
+    const html = await res.text();
+    expect(html).toContain("Gemini 3.7 Flash usage rates");
+    expect(html).toContain("Current state");
     expect(html).toContain("through December 31, 2026");
     expect(html).toContain("ai.google.dev/gemini-api/docs/pricing");
+    expect(html).toContain("Verification details");
     expect(html).toContain("sha256:aaaa");
   });
 
-  it("renders the change history with provenance", async () => {
-    const res = await fetch(`${baseUrl}/`);
+  it("history page renders readable change history with provenance", async () => {
+    const res = await fetch(
+      `${baseUrl}/signals/gemini-3.7-flash-usage-rates/history/`,
+    );
     expect(res.status).toBe(200);
     const html = await res.text();
-    expect(html).toContain("Change history");
+    expect(html).toContain("change history");
     expect(html).toContain("2026-08-14T00:30:00Z");
     expect(html).toContain("sha256:aaaa");
+  });
+
+  it("recent-changes page lists published changes newest first", async () => {
+    const res = await fetch(`${baseUrl}/changes/`);
+    expect(res.status).toBe(200);
+    const html = await res.text();
+    expect(html).toContain("Gemini 3.7 Flash usage rates");
+  });
+
+  it("unknown page renders a 404 page", async () => {
+    const res = await fetch(`${baseUrl}/signals/nope/`);
+    expect(res.status).toBe(404);
+    expect(await res.text()).toContain("404");
   });
 
   it("escapes signal data in HTML", async () => {

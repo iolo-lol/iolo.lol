@@ -18,15 +18,29 @@ A pnpm monorepo:
 
 ## Live surface
 
-The first Signal is published at
-<https://iolo-lol.github.io/iolo.lol/> with API endpoints:
+The human-facing website is published at the canonical
+<https://iolo.lol/> (GitHub Pages project URL
+<https://iolo-lol.github.io/iolo.lol/> is the implementation/deployment
+detail). Pages:
+
+- `/` — home: what iolo.lol is, what Signals are, current Signals, recent changes
+- `/signals/` — Signals index with human-readable names
+- `/signals/<signalId>/` — Signal detail: current state, freshness, source
+- `/signals/<signalId>/history/` — readable change history
+- `/changes/` — recent changes across all Signals
+
+Machine-readable endpoints:
 
 - `api/v1/signals.json` — published signal ids
 - `api/v1/signals/<signalId>.json` — canonical Result
 - `api/v1/signals/<signalId>.history.json` — change history
+- `feed.xml` — Atom change feed
+- `sitemap.xml` — public page index
 
 Canonical data lives in `data/signals/` and is entered through the governed
 publication boundary (see `docs/adr/0002-canonical-state-and-publication-boundary.md`).
+Human-readable signal names are product-owned presentation state in
+`packages/web/src/meta.ts`; they never change canonical data or contracts.
 
 ## Reproducible local validation
 

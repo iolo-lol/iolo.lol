@@ -5,9 +5,16 @@ import {
   DEFAULT_SIGNALS_DIR,
   loadHistory,
   loadSignal,
-  renderPage,
   signalIds,
 } from "./server.js";
+import {
+  renderChanges,
+  renderHome,
+  renderNotFound,
+  renderSignalDetail,
+  renderSignalHistory,
+  renderSignalsIndex,
+} from "./pages.js";
 import { DEFAULT_SITE_BASE, generateFeed, generateSitemap } from "./feed.js";
 
 export const DEFAULT_OUTPUT_DIR = fileURLToPath(
@@ -27,11 +34,13 @@ function writeText(outDir: string, relPath: string, body: string): void {
 }
 
 /**
- * Render the canonical signal state into a static site with the same JSON
- * semantics as the local server. API paths mirror the product-owned data
- * files: api/v1/signals.json (list), api/v1/signals/<id>.json (canonical),
- * api/v1/signals/<id>.history.json (history). Also generates the Atom change
- * feed and the sitemap from product-owned canonical history.
+ * Render the canonical signal state into the human-facing static site with
+ * the same page semantics as the local server: home, Signals index, Signal
+ * detail and history pages, recent-changes page, and a 404 page. API paths
+ * mirror the product-owned data files: api/v1/signals.json (list),
+ * api/v1/signals/<id>.json (canonical), api/v1/signals/<id>.history.json
+ * (history). Also generates the Atom change feed and the sitemap from
+ * product-owned canonical history.
  */
 export function generateSite(
   signalsDir: string,
@@ -40,10 +49,33 @@ export function generateSite(
 ): string[] {
   const written: string[] = [];
 
-  const indexFile = path.join(outDir, "index.html");
-  mkdirSync(outDir, { recursive: true });
-  writeFileSync(indexFile, renderPage(signalsDir));
-  written.push("index.html");
+  const pageFiles: { html: string; path: string; render: () => string }[] = [
+    { html: "index.html", path: "index.html", render: () => renderHome(signalsDir) },
+    { html: "signals/index.html", path: "signals/index.html", render: () => renderSignalsIndex(signalsDir) },
+    { html: "changes/index.html", path: "changes/index.html", render: () => renderChanges(signalsDir) },
+    { html: "404.html", path: "404.html", render: () => renderNotFound() },
+  ];
+  for (const id of signalIds(signalsDir)) {
+    pageFiles.push({
+      html: `signals/${id}/index.html`,
+      path: `signals/${id}/index.html`,
+      render: () => renderSignalDetail(signalsDir, id) ?? renderNotFound(),
+    });
+    try {
+      loadHistory(signalsDir, id);
+      pageFiles.push({
+        html: `signals/${id}/history/index.html`,
+        path: `signals/${id}/history/index.html`,
+        render: () => renderSignalHistory(signalsDir, id) ?? renderNotFound(),
+      });
+    } catch {
+      // signal without history: no history page
+    }
+  }
+  for (const page of pageFiles) {
+    writeText(outDir, page.path, page.render());
+    written.push(page.path);
+  }
 
   writeJson(outDir, path.join("api", "v1", "signals.json"), {
     signals: signalIds(signalsDir),
@@ -81,7 +113,10 @@ export function generateSite(
   return written;
 }
 
-if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+if (
+  process.argv[1] &&
+  path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)
+) {
   const signalsDir = process.env.SIGNALS_DIR ?? DEFAULT_SIGNALS_DIR;
   const outDir = process.env.OUTPUT_DIR ?? DEFAULT_OUTPUT_DIR;
   const siteBase = process.env.SITE_BASE ?? DEFAULT_SITE_BASE;

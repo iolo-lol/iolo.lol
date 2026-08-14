@@ -1,6 +1,7 @@
 import { loadHistory, loadSignal, signalIds } from "./server.js";
+import { signalMeta } from "./meta.js";
 
-export const DEFAULT_SITE_BASE = "https://iolo-lol.github.io/iolo.lol";
+export const DEFAULT_SITE_BASE = "https://iolo.lol";
 
 function xmlEscape(value: string): string {
   return value
@@ -43,7 +44,8 @@ function valueSummary(entry: HistoryEntry["result"]): string {
 
 /**
  * Atom feed of published canonical changes, one entry per history entry
- * (never per observation), newest first.
+ * (never per observation), newest first. Entries link to the human-readable
+ * change-history page on the canonical origin.
  */
 export function generateFeed(
   signalsDir: string,
@@ -57,13 +59,14 @@ export function generateFeed(
     } catch {
       continue;
     }
+    const meta = signalMeta(id);
     for (const entry of history.entries) {
-      const link = `${siteBase}/api/v1/signals/${id}.json`;
+      const link = `${siteBase}/signals/${id}/history/`;
       entries.push({
         publishedAt: entry.publishedAt,
         xml: `  <entry>
     <id>${xmlEscape(entryId(id, entry.publishedAt))}</id>
-    <title>${xmlEscape(id)} published change</title>
+    <title>${xmlEscape(meta.title)} — published change</title>
     <published>${xmlEscape(entry.publishedAt)}</published>
     <updated>${xmlEscape(entry.publishedAt)}</updated>
     <link href="${xmlEscape(link)}"/>
@@ -93,8 +96,8 @@ ${entries.map((e) => e.xml).join("\n")}
 }
 
 /**
- * Sitemap of the intended public Signal/history surfaces, with the latest
- * published change as lastmod.
+ * Sitemap of the intended public human-facing and machine surfaces, with the
+ * latest published change as lastmod.
  */
 export function generateSitemap(
   signalsDir: string,
@@ -102,9 +105,12 @@ export function generateSitemap(
 ): string {
   const urls: { loc: string; lastmod: string }[] = [
     { loc: `${siteBase}/`, lastmod: "" },
+    { loc: `${siteBase}/signals/`, lastmod: "" },
+    { loc: `${siteBase}/changes/`, lastmod: "" },
     { loc: `${siteBase}/api/v1/signals.json`, lastmod: "" },
   ];
   for (const id of signalIds(signalsDir)) {
+    urls.push({ loc: `${siteBase}/signals/${id}/`, lastmod: "" });
     urls.push({ loc: `${siteBase}/api/v1/signals/${id}.json`, lastmod: "" });
     try {
       const result = loadSignal(signalsDir, id) as {
@@ -115,9 +121,14 @@ export function generateSitemap(
       };
       const lastPublished =
         history.entries?.[history.entries.length - 1]?.publishedAt;
+      const lastmod = lastPublished ?? result.observedAt ?? "";
+      urls.push({
+        loc: `${siteBase}/signals/${id}/history/`,
+        lastmod,
+      });
       urls.push({
         loc: `${siteBase}/api/v1/signals/${id}.history.json`,
-        lastmod: lastPublished ?? result.observedAt ?? "",
+        lastmod,
       });
     } catch {
       // no history endpoint for this signal

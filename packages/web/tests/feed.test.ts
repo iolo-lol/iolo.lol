@@ -41,8 +41,10 @@ describe("Atom change feed", () => {
     expect(feed).toContain("ai.google.dev/gemini-api/docs/pricing");
     expect(feed).toContain("api-docs.deepseek.com/quick_start/pricing/");
     expect(feed).toContain(
-      "https://iolo-lol.github.io/iolo.lol/api/v1/signals/",
+      "https://iolo.lol/signals/gemini-3.7-flash-usage-rates/history/",
     );
+    expect(feed).toContain("Gemini 3.7 Flash usage rates");
+    expect(feed).toContain("DeepSeek V4 Flash usage rates");
   });
 
   it("orders entries newest first and never duplicates", () => {
@@ -54,7 +56,8 @@ describe("Atom change feed", () => {
       ...feed.matchAll(/<published>([^<]+)<\/published>/g),
     ].map((m) => m[1] ?? "");
     const sorted = [...published].sort((a, b) => (a < b ? 1 : -1));
-    expect(published).toEqual(sorted);  });
+    expect(published).toEqual(sorted);
+  });
 
   it("escapes XML in notes", () => {
     const feed = generateFeed(DEFAULT_SIGNALS_DIR);
@@ -63,35 +66,38 @@ describe("Atom change feed", () => {
 });
 
 describe("sitemap", () => {
-  it("lists the intended public surfaces with lastmod", () => {
+  it("lists the human-facing and machine surfaces with lastmod", () => {
     const sitemap = generateSitemap(DEFAULT_SIGNALS_DIR);
+    expect(sitemap).toContain("<loc>https://iolo.lol/</loc>");
+    expect(sitemap).toContain("<loc>https://iolo.lol/signals/</loc>");
+    expect(sitemap).toContain("<loc>https://iolo.lol/changes/</loc>");
     expect(sitemap).toContain(
-      "<loc>https://iolo-lol.github.io/iolo.lol/</loc>",
+      "<loc>https://iolo.lol/api/v1/signals.json</loc>",
     );
     expect(sitemap).toContain(
-      "<loc>https://iolo-lol.github.io/iolo.lol/api/v1/signals.json</loc>",
+      "<loc>https://iolo.lol/signals/gemini-3.7-flash-usage-rates/</loc>",
     );
     expect(sitemap).toContain(
-      "<loc>https://iolo-lol.github.io/iolo.lol/api/v1/signals/gemini-3.7-flash-usage-rates.history.json</loc>",
+      "<loc>https://iolo.lol/signals/gemini-3.7-flash-usage-rates/history/</loc>",
     );
     expect(sitemap).toContain(
-      "<loc>https://iolo-lol.github.io/iolo.lol/api/v1/signals/deepseek-v4-flash-usage-rates.json</loc>",
+      "<loc>https://iolo.lol/api/v1/signals/deepseek-v4-flash-usage-rates.json</loc>",
     );
     expect(sitemap).toMatch(/<lastmod>\d{4}-\d{2}-\d{2}<\/lastmod>/);
   });
 });
 
 describe("static site with feed and sitemap", () => {
-  it("generates feed.xml and sitemap.xml alongside the API files", () => {
+  it("generates feed.xml and sitemap.xml alongside the pages and API files", () => {
     const outDir = mkdtempSync(path.join(tmpdir(), "iolo-static-"));
     const files = generateSite(DEFAULT_SIGNALS_DIR, outDir);
     expect(files).toContain("feed.xml");
     expect(files).toContain("sitemap.xml");
     expect(readFileSync(path.join(outDir, "feed.xml"), "utf8")).toContain(
-      "<feed xmlns=\"http://www.w3.org/2005/Atom\">",
+      '<feed xmlns="http://www.w3.org/2005/Atom">',
     );
     expect(readFileSync(path.join(outDir, "sitemap.xml"), "utf8")).toContain(
-      "<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">",
+      '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
     );
   });
 });
