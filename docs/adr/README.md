@@ -29,3 +29,4 @@ contracts in [`architecture.md`](../architecture.md) and the
 * [ADR-0001: Cross-repo boundary and contract ownership](0001-cross-repo-boundary.md)
 * [ADR-0002: Canonical signal state and publication boundary](0002-canonical-state-and-publication-boundary.md)
 * [ADR-0003: Public runtime — static hosting of canonical signal state](0003-public-runtime-static-hosting.md)
+* [ADR-0004: Canonical production domain and human-facing information architecture](0004-canonical-domain-and-human-ia.md)
