@@ -182,7 +182,6 @@ export function createApp(signalsDir: string): Server {
     }
 
     // Machine API (unchanged)
-    const signalsMatch = pathname.match(/^\/api\/v1\/signals$/);
     const signalMatch = pathname.match(/^\/api\/v1\/signals\/([^/]+)$/);
     const historyApiMatch = pathname.match(
       /^\/api\/v1\/signals\/([^/]+)\/history$/,
@@ -195,7 +194,7 @@ export function createApp(signalsDir: string): Server {
       sendJson(res, 200, changesFromSignalsDir(signalsDir));
       return;
     }
-    if (signalsMatch) {
+    if (pathname === "/api/v1/signals" || pathname === "/api/v1/signals.json") {
       sendJson(res, 200, { signals: signalIds(signalsDir) });
       return;
     }
