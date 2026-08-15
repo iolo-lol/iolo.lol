@@ -1,0 +1,175 @@
+{
+  "$id": "https://iolo.lol/contracts/comparison/v1",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Comparison projection",
+  "description": "Deterministic derived comparison of the accepted AI usage-rate Signals: one entry per canonical Signal with provenance, presentation identity, and every statement preserved verbatim (conditional prices stay conditional). Generated purely from canonical Signal results plus static product-owned labels; never a second truth source.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "entries"],
+  "properties": {
+    "schemaVersion": {
+      "const": 1,
+      "description": "Comparison contract major version; a breaking change is a new contract version."
+    },
+    "entries": {
+      "type": "array",
+      "minItems": 1,
+      "description": "One entry per canonical Signal, sorted by signalId. The first statement of each dimension is the currently applicable value.",
+      "items": { "$ref": "#/$defs/entry" }
+    }
+  },
+  "$defs": {
+    "entry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["signalId", "provider", "model", "source", "observedAt", "dimensions"],
+      "properties": {
+        "signalId": {
+          "type": "string",
+          "pattern": "^[a-z0-9]+([.-][a-z0-9]+)*$",
+          "description": "Stable identity of the canonical Signal this entry is projected from."
+        },
+        "provider": {
+          "type": "string",
+          "description": "Product-owned provider label, for example 'Google'."
+        },
+        "model": {
+          "type": "string",
+          "description": "Product-owned model label, for example 'Gemini 3.7 Flash'."
+        },
+        "source": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["url", "fetchedAt", "contentHash"],
+          "properties": {
+            "url": {
+              "type": "string",
+              "format": "uri",
+              "description": "Official source URL the canonical Signal was derived from."
+            },
+            "fetchedAt": {
+              "type": "string",
+              "format": "date-time",
+              "description": "When the source content was fetched."
+            },
+            "contentHash": {
+              "type": "string",
+              "pattern": "^sha256:[a-f0-9]{64}$",
+              "description": "SHA-256 digest of the fetched source content, for reproducible verification."
+            }
+          }
+        },
+        "observedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "When the canonical Signal was observed."
+        },
+        "dimensions": {
+          "type": "array",
+          "minItems": 1,
+          "description": "Pricing dimensions of this entry, sorted by name.",
+          "items": { "$ref": "#/$defs/dimension" }
+        }
+      }
+    },
+    "dimension": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "label", "unit", "currency", "statements"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[a-z0-9-]+$",
+          "description": "Stable field name, for example input-price or input-price-cache-hit."
+        },
+        "label": {
+          "type": "string",
+          "description": "Product-owned human-readable dimension label, for example 'Input price (cache hit)'."
+        },
+        "unit": {
+          "const": "per-1m-tokens",
+          "description": "Rate unit; v1 covers per-1M-token usage rates."
+        },
+        "currency": {
+          "const": "USD",
+          "description": "Currency of every statement value."
+        },
+        "statements": {
+          "type": "array",
+          "minItems": 1,
+          "description": "Source statements in canonical reading order; the first is the currently applicable rate. Conditional pricing (cache hit/miss, peak/off-peak, temporary or future-effective rates) is preserved verbatim, never flattened.",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["value", "note"],
+            "properties": {
+              "value": {
+                "type": "number",
+                "exclusiveMinimum": 0,
+                "description": "Numeric rate per unit, in the statement's currency."
+              },
+              "note": {
+                "type": "string",
+                "description": "Verbatim source qualifier, for example 'through December 31, 2026.'"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "examples": [
+    {
+      "schemaVersion": 1,
+      "entries": [
+        {
+          "signalId": "gemini-3.7-flash-usage-rates",
+          "provider": "Google",
+          "model": "Gemini 3.7 Flash",
+          "source": {
+            "url": "https://ai.google.dev/gemini-api/docs/pricing",
+            "fetchedAt": "2026-08-14T03:25:00Z",
+            "contentHash": "sha256:2222222222222222222222222222222222222222222222222222222222222222"
+          },
+          "observedAt": "2026-08-13T19:38:18.256Z",
+          "dimensions": [
+            {
+              "name": "input-price",
+              "label": "Input price",
+              "unit": "per-1m-tokens",
+              "currency": "USD",
+              "statements": [
+                { "value": 0.75, "note": "through December 31, 2026." },
+                { "value": 1.5, "note": "starting January 1, 2027." }
+              ]
+            }
+          ]
+        },
+        {
+          "signalId": "deepseek-v4-flash-usage-rates",
+          "provider": "DeepSeek",
+          "model": "DeepSeek V4 Flash",
+          "source": {
+            "url": "https://api-docs.deepseek.com/quick_start/pricing/",
+            "fetchedAt": "2026-08-14T04:05:24.500Z",
+            "contentHash": "sha256:3333333333333333333333333333333333333333333333333333333333333333"
+          },
+          "observedAt": "2026-08-14T04:05:24.543Z",
+          "dimensions": [
+            {
+              "name": "input-price-cache-hit",
+              "label": "Input price (cache hit)",
+              "unit": "per-1m-tokens",
+              "currency": "USD",
+              "statements": [
+                { "value": 0.0028, "note": "through 16:00 UTC on August 16, 2026" },
+                { "value": 0.007, "note": "off-peak from 16:00 UTC on August 16, 2026" },
+                { "value": 0.014, "note": "peak (01:00 - 04:00 and 06:00 - 10:00 UTC (all other hours are off-peak)) from 16:00 UTC on August 16, 2026" }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

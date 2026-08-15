@@ -9,6 +9,8 @@ export interface SignalMeta {
   title: string;
   /** Provider/product label, for example "Google". */
   provider: string;
+  /** Human-readable model label, for example "Gemini 3.7 Flash". */
+  model: string;
   /** One-sentence description for index and detail pages. */
   description: string;
   /** Human-readable label per normalized value name. */
@@ -19,6 +21,7 @@ export const SIGNAL_META: Record<string, SignalMeta> = {
   "gemini-3.7-flash-usage-rates": {
     title: "Gemini 3.7 Flash usage rates",
     provider: "Google",
+    model: "Gemini 3.7 Flash",
     description:
       "Usage rates for the Gemini 3.7 Flash model from Google AI Studio, per 1 million tokens.",
     valueLabels: {
@@ -29,6 +32,7 @@ export const SIGNAL_META: Record<string, SignalMeta> = {
   "deepseek-v4-flash-usage-rates": {
     title: "DeepSeek V4 Flash usage rates",
     provider: "DeepSeek",
+    model: "DeepSeek V4 Flash",
     description:
       "Usage rates for the DeepSeek V4 Flash model from the DeepSeek API, per 1 million tokens.",
     valueLabels: {
@@ -40,6 +44,7 @@ export const SIGNAL_META: Record<string, SignalMeta> = {
   "xai-grok-4.6-usage-rates": {
     title: "Grok 4.6 usage rates",
     provider: "xAI",
+    model: "Grok 4.6",
     description:
       "Usage rates for the Grok 4.6 model from the xAI API, per 1 million tokens.",
     valueLabels: {
@@ -50,6 +55,7 @@ export const SIGNAL_META: Record<string, SignalMeta> = {
   "cohere-command-r-plus-08-2024-usage-rates": {
     title: "Command R+ 08-2024 usage rates",
     provider: "Cohere",
+    model: "Command R+ 08-2024",
     description:
       "Usage rates for the Command R+ 08-2024 model from the Cohere API, per 1 million tokens.",
     valueLabels: {
@@ -60,6 +66,7 @@ export const SIGNAL_META: Record<string, SignalMeta> = {
   "together-qwen3.8-2.4t-a95b-usage-rates": {
     title: "Qwen3.8-2.4T-A95B usage rates",
     provider: "Together AI",
+    model: "Qwen3.8-2.4T-A95B",
     description:
       "Usage rates for the Qwen3.8-2.4T-A95B model from the Together AI API, per 1 million tokens.",
     valueLabels: {
@@ -75,6 +82,7 @@ export function signalMeta(signalId: string): SignalMeta {
     SIGNAL_META[signalId] ?? {
       title: signalId,
       provider: "",
+      model: signalId,
       description: "",
       valueLabels: {},
     }
