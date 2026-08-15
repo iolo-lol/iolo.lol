@@ -174,6 +174,58 @@ export const SIGNAL_META: Record<string, SignalMeta> = {
       "output-price": "Output price",
     },
   },
+  "anthropic-fable-5-usage-rates": {
+    title: "Fable 5 usage rates",
+    provider: "Anthropic",
+    model: "Fable 5",
+    description:
+      "Usage rates for the Fable 5 model from the Anthropic API, per 1 million tokens.",
+    valueLabels: {
+      "input-price": "Input price",
+      "output-price": "Output price",
+      "cache-writes": "Cache writes",
+      "cache-reads": "Cache reads",
+    },
+  },
+  "anthropic-opus-5-usage-rates": {
+    title: "Opus 5 usage rates",
+    provider: "Anthropic",
+    model: "Opus 5",
+    description:
+      "Usage rates for the Opus 5 model from the Anthropic API, per 1 million tokens.",
+    valueLabels: {
+      "input-price": "Input price",
+      "output-price": "Output price",
+      "cache-writes": "Cache writes",
+      "cache-reads": "Cache reads",
+    },
+  },
+  "anthropic-sonnet-5-usage-rates": {
+    title: "Sonnet 5 usage rates",
+    provider: "Anthropic",
+    model: "Sonnet 5",
+    description:
+      "Usage rates for the Sonnet 5 model from the Anthropic API, per 1 million tokens.",
+    valueLabels: {
+      "input-price": "Input price",
+      "output-price": "Output price",
+      "cache-writes": "Cache writes",
+      "cache-reads": "Cache reads",
+    },
+  },
+  "anthropic-haiku-4.5-usage-rates": {
+    title: "Haiku 4.5 usage rates",
+    provider: "Anthropic",
+    model: "Haiku 4.5",
+    description:
+      "Usage rates for the Haiku 4.5 model from the Anthropic API, per 1 million tokens.",
+    valueLabels: {
+      "input-price": "Input price",
+      "output-price": "Output price",
+      "cache-writes": "Cache writes",
+      "cache-reads": "Cache reads",
+    },
+  },
 };
 
 export function signalMeta(signalId: string): SignalMeta {

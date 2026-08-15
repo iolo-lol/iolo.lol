@@ -172,6 +172,54 @@ export const MODEL_IDENTITIES: ModelIdentityMeta[] = [
       },
     ],
   },
+  {
+    id: "fable-5",
+    name: "Fable 5",
+    developer: "Anthropic",
+    offers: [
+      {
+        signalId: "anthropic-fable-5-usage-rates",
+        provider: "Anthropic",
+        offer: "Anthropic API",
+      },
+    ],
+  },
+  {
+    id: "opus-5",
+    name: "Opus 5",
+    developer: "Anthropic",
+    offers: [
+      {
+        signalId: "anthropic-opus-5-usage-rates",
+        provider: "Anthropic",
+        offer: "Anthropic API",
+      },
+    ],
+  },
+  {
+    id: "sonnet-5",
+    name: "Sonnet 5",
+    developer: "Anthropic",
+    offers: [
+      {
+        signalId: "anthropic-sonnet-5-usage-rates",
+        provider: "Anthropic",
+        offer: "Anthropic API",
+      },
+    ],
+  },
+  {
+    id: "haiku-4.5",
+    name: "Haiku 4.5",
+    developer: "Anthropic",
+    offers: [
+      {
+        signalId: "anthropic-haiku-4.5-usage-rates",
+        provider: "Anthropic",
+        offer: "Anthropic API",
+      },
+    ],
+  },
 ];
 
 const IDENTITY_BY_SIGNAL: Record<string, ModelIdentityMeta> = Object.fromEntries(

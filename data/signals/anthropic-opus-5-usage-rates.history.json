@@ -1,0 +1,65 @@
+{
+  "schemaVersion": 1,
+  "signalId": "anthropic-opus-5-usage-rates",
+  "entries": [
+    {
+      "publishedAt": "2026-08-15T19:09:25.243Z",
+      "result": {
+        "schemaVersion": 1,
+        "signalId": "anthropic-opus-5-usage-rates",
+        "observedAt": "2026-08-15T19:09:25.204Z",
+        "source": {
+          "url": "https://claude.com/pricing",
+          "fetchedAt": "2026-08-15T18:54:53Z",
+          "contentHash": "sha256:8efaa7a4836ec8719ce532069eb85720685de99917f1b1ce0687b2441236e187"
+        },
+        "values": [
+          {
+            "name": "input-price",
+            "unit": "per-1m-tokens",
+            "currency": "USD",
+            "statements": [
+              {
+                "value": 5,
+                "note": "Save 50% with batch processing."
+              }
+            ]
+          },
+          {
+            "name": "output-price",
+            "unit": "per-1m-tokens",
+            "currency": "USD",
+            "statements": [
+              {
+                "value": 25,
+                "note": "Save 50% with batch processing."
+              }
+            ]
+          },
+          {
+            "name": "cache-writes",
+            "unit": "per-1m-tokens",
+            "currency": "USD",
+            "statements": [
+              {
+                "value": 6.25,
+                "note": "Save 50% with batch processing."
+              }
+            ]
+          },
+          {
+            "name": "cache-reads",
+            "unit": "per-1m-tokens",
+            "currency": "USD",
+            "statements": [
+              {
+                "value": 0.5,
+                "note": "Save 50% with batch processing."
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}
