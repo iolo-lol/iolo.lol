@@ -25,14 +25,18 @@ const addFormats = require("ajv-formats").default as FormatsPlugin;
  */
 
 describe("comparison projection (from real canonical Signals)", () => {
-  it("projects all seven canonical Signals with identity and provenance", () => {
+  it("projects all eleven canonical Signals with identity and provenance", () => {
     const doc = comparisonFromSignalsDir(DEFAULT_SIGNALS_DIR);
     expect(doc.entries.map((e) => e.signalId)).toEqual([
       "cohere-command-r-plus-08-2024-usage-rates",
+      "deepinfra-deepseek-v4-pro-usage-rates",
       "deepinfra-kimi-k3-usage-rates",
+      "deepinfra-qwen3.8-max-usage-rates",
       "deepseek-v4-flash-usage-rates",
       "gemini-3.7-flash-usage-rates",
+      "openai-gpt-5.6-luna-usage-rates",
       "openai-gpt-5.6-sol-usage-rates",
+      "openai-gpt-5.6-terra-usage-rates",
       "together-qwen3.8-2.4t-a95b-usage-rates",
       "xai-grok-4.6-usage-rates",
     ]);
@@ -45,45 +49,57 @@ describe("comparison projection (from real canonical Signals)", () => {
     }
   });
 
-  it("carries the M8 additions (OpenAI GPT-5.6 Sol, DeepInfra Kimi-K3) faithfully", () => {
+  it("carries the M9 additions faithfully and keeps attribution accurate", () => {
     const doc = comparisonFromSignalsDir(DEFAULT_SIGNALS_DIR);
-    const openai = doc.entries.find(
-      (e) => e.signalId === "openai-gpt-5.6-sol-usage-rates",
+    const terra = doc.entries.find(
+      (e) => e.signalId === "openai-gpt-5.6-terra-usage-rates",
     );
-    expect(openai).toBeDefined();
-    expect(openai!.provider).toBe("OpenAI");
-    expect(openai!.model).toBe("GPT-5.6 Sol");
-    const openaiDims = new Map(openai!.dimensions.map((d) => [d.name, d]));
-    expect(openaiDims.get("input-price")?.statements).toEqual([
-      { value: 5, note: "" },
+    expect(terra!.provider).toBe("OpenAI");
+    expect(terra!.model).toBe("GPT-5.6 Terra");
+    const terraDims = new Map(terra!.dimensions.map((d) => [d.name, d]));
+    expect(terraDims.get("input-price")?.statements).toEqual([
+      { value: 2, note: "" },
     ]);
-    expect(openaiDims.get("output-price")?.statements).toEqual([
-      { value: 30, note: "" },
+    expect(terraDims.get("output-price-long-context")?.statements).toEqual([
+      { value: 18, note: "" },
     ]);
-    expect(openaiDims.get("input-price-long-context")?.statements).toEqual([
-      { value: 10, note: "" },
-    ]);
-    expect(openaiDims.get("output-price-long-context")?.statements).toEqual([
-      { value: 45, note: "" },
-    ]);
-    // short + long context blocks are both preserved (8 dimensions total)
-    expect(openai!.dimensions).toHaveLength(8);
 
-    const kimi = doc.entries.find(
-      (e) => e.signalId === "deepinfra-kimi-k3-usage-rates",
+    const luna = doc.entries.find(
+      (e) => e.signalId === "openai-gpt-5.6-luna-usage-rates",
     );
-    expect(kimi).toBeDefined();
-    expect(kimi!.provider).toBe("DeepInfra");
-    expect(kimi!.model).toBe("Kimi-K3");
-    const kimiDims = new Map(kimi!.dimensions.map((d) => [d.name, d]));
-    expect(kimiDims.get("input-price")?.statements).toEqual([
-      { value: 2.85, note: "" },
+    expect(luna!.model).toBe("GPT-5.6 Luna");
+    const lunaDims = new Map(luna!.dimensions.map((d) => [d.name, d]));
+    expect(lunaDims.get("input-price")?.statements).toEqual([
+      { value: 0.2, note: "" },
     ]);
-    expect(kimiDims.get("input-price-cache-hit")?.statements).toEqual([
-      { value: 0.285, note: "cached" },
+
+    const v4pro = doc.entries.find(
+      (e) => e.signalId === "deepinfra-deepseek-v4-pro-usage-rates",
+    );
+    expect(v4pro!.provider).toBe("DeepInfra");
+    expect(v4pro!.model).toBe("DeepSeek-V4-Pro");
+    const v4Dims = new Map(v4pro!.dimensions.map((d) => [d.name, d]));
+    expect(v4Dims.get("input-price")?.statements).toEqual([
+      { value: 1.3, note: "" },
     ]);
-    expect(kimiDims.get("output-price")?.statements).toEqual([
-      { value: 14.25, note: "" },
+    expect(v4Dims.get("input-price-cache-hit")?.statements).toEqual([
+      { value: 0.1, note: "cached" },
+    ]);
+    expect(v4Dims.get("output-price")?.statements).toEqual([
+      { value: 2.6, note: "" },
+    ]);
+
+    const qwenMax = doc.entries.find(
+      (e) => e.signalId === "deepinfra-qwen3.8-max-usage-rates",
+    );
+    expect(qwenMax!.provider).toBe("DeepInfra");
+    expect(qwenMax!.model).toBe("Qwen3.8-Max");
+    const qwenDims = new Map(qwenMax!.dimensions.map((d) => [d.name, d]));
+    expect(qwenDims.get("input-price")?.statements).toEqual([
+      { value: 1.65, note: "" },
+    ]);
+    expect(qwenDims.get("output-price")?.statements).toEqual([
+      { value: 4.951, note: "" },
     ]);
   });
 

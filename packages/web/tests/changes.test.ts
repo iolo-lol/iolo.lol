@@ -27,10 +27,10 @@ const addFormats = require("ajv-formats").default as FormatsPlugin;
  */
 
 describe("changes projection (real canonical Signals)", () => {
-  it("runs over all seven canonical Signals and emits zero observed records from single-snapshot history", () => {
+  it("runs over all eleven canonical Signals and emits zero observed records from single-snapshot history", () => {
     // the projection loads every canonical current+history file in data/signals/
     const ids = signalIds(DEFAULT_SIGNALS_DIR);
-    expect(ids).toHaveLength(7);
+    expect(ids).toHaveLength(11);
     const doc = changesFromSignalsDir(DEFAULT_SIGNALS_DIR);
     const observed = doc.records.filter((r) => r.kind === "observed");
     expect(observed).toEqual([]);
@@ -43,18 +43,17 @@ describe("changes projection (real canonical Signals)", () => {
     }
   });
 
-  it("emits no change records for the single-snapshot M8 additions", () => {
+  it("emits no change records for the single-snapshot M9 additions", () => {
     const doc = changesFromSignalsDir(DEFAULT_SIGNALS_DIR);
-    const openai = doc.records.filter(
-      (r) => r.signalId === "openai-gpt-5.6-sol-usage-rates",
-    );
-    // OpenAI's rates carry no future-effective notes: no upcoming records
-    expect(openai).toEqual([]);
-    const kimi = doc.records.filter(
-      (r) => r.signalId === "deepinfra-kimi-k3-usage-rates",
-    );
-    // DeepInfra Kimi-K3 "cached" is a concurrent condition, not a change
-    expect(kimi).toEqual([]);
+    for (const id of [
+      "openai-gpt-5.6-terra-usage-rates",
+      "openai-gpt-5.6-luna-usage-rates",
+      "deepinfra-deepseek-v4-pro-usage-rates",
+      "deepinfra-qwen3.8-max-usage-rates",
+    ]) {
+      // no future-effective notes and no consecutive snapshots: no records
+      expect(doc.records.filter((r) => r.signalId === id)).toEqual([]);
+    }
   });
 
   it("emits exactly the canonical upcoming records", () => {
