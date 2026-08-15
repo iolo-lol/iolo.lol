@@ -17,6 +17,7 @@ import {
   renderSignalsIndex,
 } from "./pages.js";
 import { comparisonFromSignalsDir } from "./compare.js";
+import { changesFromSignalsDir } from "./changes.js";
 import { DEFAULT_SITE_BASE, generateFeed, generateSitemap } from "./feed.js";
 
 export const DEFAULT_OUTPUT_DIR = fileURLToPath(
@@ -91,6 +92,13 @@ export function generateSite(
     comparisonFromSignalsDir(signalsDir),
   );
   written.push("api/v1/comparisons/index.json");
+
+  writeJson(
+    outDir,
+    path.join("api", "v1", "changes", "index.json"),
+    changesFromSignalsDir(signalsDir),
+  );
+  written.push("api/v1/changes/index.json");
 
   writeText(outDir, path.join("feed.xml"), generateFeed(signalsDir, siteBase));
   written.push("feed.xml");

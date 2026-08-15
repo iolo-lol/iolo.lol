@@ -10,6 +10,7 @@ import path from "node:path";
 import { describe, expect, it } from "vitest";
 import { generateSite } from "../src/static.js";
 import { comparisonFromSignalsDir } from "../src/compare.js";
+import { changesFromSignalsDir } from "../src/changes.js";
 import { DEFAULT_SIGNALS_DIR, signalIds } from "../src/server.js";
 
 const REAL_RESULT = JSON.parse(
@@ -43,6 +44,7 @@ describe("static site generator", () => {
       ]),
       "api/v1/signals.json",
       "api/v1/comparisons/index.json",
+      "api/v1/changes/index.json",
       "feed.xml",
       "sitemap.xml",
       ...ids.flatMap((id) => [
@@ -165,23 +167,58 @@ describe("static site generator", () => {
     expect(artifact).toEqual(comparisonFromSignalsDir(DEFAULT_SIGNALS_DIR));
   });
 
-  it("regenerates byte-identical comparison artifacts across runs", () => {
+  it("regenerates byte-identical comparison and changes artifacts across runs", () => {
     const first = mkdtempSync(path.join(tmpdir(), "iolo-static-"));
     const second = mkdtempSync(path.join(tmpdir(), "iolo-static-"));
     generateSite(DEFAULT_SIGNALS_DIR, first);
     generateSite(DEFAULT_SIGNALS_DIR, second);
-    const a = readFileSync(
-      path.join(first, "api/v1/comparisons/index.json"),
-      "utf8",
-    );
-    const b = readFileSync(
-      path.join(second, "api/v1/comparisons/index.json"),
-      "utf8",
-    );
-    expect(a).toBe(b);
-    const pageA = readFileSync(path.join(first, "compare/index.html"), "utf8");
-    const pageB = readFileSync(path.join(second, "compare/index.html"), "utf8");
-    expect(pageA).toBe(pageB);
+    for (const rel of [
+      "api/v1/comparisons/index.json",
+      "api/v1/changes/index.json",
+      "compare/index.html",
+      "changes/index.html",
+      "feed.xml",
+      "sitemap.xml",
+    ]) {
+      const a = readFileSync(path.join(first, rel), "utf8");
+      const b = readFileSync(path.join(second, rel), "utf8");
+      expect(a, `${rel} must be byte-identical`).toBe(b);
+    }
+  });
+
+  it("renders the changes page and artifact from the shared projection", () => {
+    const outDir = mkdtempSync(path.join(tmpdir(), "iolo-static-"));
+    generateSite(DEFAULT_SIGNALS_DIR, outDir);
+
+    const page = readFileSync(path.join(outDir, "changes/index.html"), "utf8");
+    expect(page).toContain("Pricing changes");
+    // upcoming and observed sections are semantically distinct
+    expect(page).toContain("Observed changes");
+    expect(page).toContain("Upcoming changes");
+    expect(page).toContain("No observed pricing changes yet");
+    // upcoming items carry provider/model, before/after, conditions, time, source
+    expect(page).toContain("Gemini 3.7 Flash usage rates");
+    expect(page).toContain("DeepSeek V4 Flash usage rates");
+    expect(page).toContain("Input price");
+    expect(page).toContain("through December 31, 2026.");
+    expect(page).toContain("starting January 1, 2027.");
+    expect(page).toContain("off-peak from 16:00 UTC on August 16, 2026");
+    expect(page).toContain("16 Aug 2026, 16:00 UTC");
+    expect(page).toContain("ai.google.dev/gemini-api/docs/pricing");
+    expect(page).toContain("api-docs.deepseek.com/quick_start/pricing/");
+    expect(page).toContain("/signals/gemini-3.7-flash-usage-rates/");
+    expect(page).toContain("/signals/deepseek-v4-flash-usage-rates/");
+    expect(page).toContain("/api/v1/changes/index.json");
+
+    // the static artifact is exactly the shared projection
+    const artifact = JSON.parse(
+      readFileSync(path.join(outDir, "api/v1/changes/index.json"), "utf8"),
+    ) as {
+      schemaVersion: number;
+      records: { kind: string }[];
+    };
+    expect(artifact).toEqual(changesFromSignalsDir(DEFAULT_SIGNALS_DIR));
+    expect(artifact.records.every((r) => r.kind === "upcoming")).toBe(true);
   });
 
   it("skips history for a signal without one and renders from any data dir", () => {
@@ -211,6 +248,7 @@ describe("static site generator", () => {
       "signals/x/index.html",
       "api/v1/signals.json",
       "api/v1/comparisons/index.json",
+      "api/v1/changes/index.json",
       "feed.xml",
       "sitemap.xml",
       "api/v1/signals/x.json",

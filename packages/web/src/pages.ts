@@ -13,6 +13,10 @@ import {
   type ComparisonDocument,
   type ComparisonEntry,
 } from "./compare.js";
+import {
+  changesFromSignalsDir,
+  type ChangeRecord,
+} from "./changes.js";
 import { loadHistory, loadSignal, signalIds, type HistoryEntry } from "./server.js";
 import { htmlEscape } from "./escape.js";
 
@@ -397,6 +401,8 @@ ol.history .num {
   h1 { font-size: 1.75rem; }
   .current-values { grid-template-columns: 1fr; }
   nav { padding: 0.65rem 1rem; }
+  .change-flow { flex-direction: column; }
+  .change-arrow { transform: rotate(90deg); align-self: flex-start; padding: 0.1rem 0; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -443,6 +449,41 @@ th.cmp-provider-col { min-width: 11.5rem; }
 .cmp-note { color: var(--muted); font-size: 0.78rem; line-height: 1.45; }
 .cmp-na { color: var(--quiet); text-align: center; }
 .cmp-legend { color: var(--muted); font-size: 0.875rem; max-width: 52rem; }
+
+/* Changes page */
+.change-head { margin-bottom: 0.35rem; }
+.change-head .change-kind {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 600;
+  border-radius: 999px;
+  padding: 0.1rem 0.5rem;
+  margin-right: 0.4rem;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+.change-kind.observed {
+  color: var(--muted);
+  background: var(--surface-raised);
+  border: 1px solid var(--line);
+}
+.change-kind.upcoming {
+  color: var(--accent);
+  background: var(--accent-surface);
+  border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent);
+}
+.change-times { color: var(--muted); font-size: 0.875rem; margin: 0.15rem 0 0.6rem; }
+.change-flow { display: flex; align-items: stretch; gap: 0.6rem; margin: 0.6rem 0; }
+.change-flow .cv { flex: 1 1 0; min-width: 0; }
+.change-arrow {
+  align-self: center;
+  color: var(--quiet);
+  font-size: 1.1rem;
+  padding: 0 0.1rem;
+  user-select: none;
+}
+.change-source { color: var(--muted); font-size: 0.85rem; margin: 0.45rem 0 0; }
+.change-empty { color: var(--quiet); }
 </style>
 </head>
 <body>
@@ -451,7 +492,7 @@ th.cmp-provider-col { min-width: 11.5rem; }
 <span class="brand"><a href="/">iolo.lol<small>Signals</small></a></span>
 <a class="nav" href="/signals/">Signals</a>
 <a class="nav" href="/compare/">Compare</a>
-<a class="nav" href="/changes/">Recent changes</a>
+<a class="nav" href="/changes/">Changes</a>
 <a class="nav" href="/feed.xml">Feed</a>
 </nav>
 </header>
@@ -543,7 +584,7 @@ function lastPublishedAt(signalsDir: string, signalId: string): string | undefin
 
 export function renderHome(signalsDir: string): string {
   const ids = signalIds(signalsDir);
-  const recent = recentChanges(signalsDir, 5);
+  const recent = recentChangeRecords(signalsDir, 5);
   const body = `<h1>iolo.lol</h1>
 <p class="lead">Current facts about AI services — usage rates and pricing from official sources — checked continuously, with the source of every observation recorded.</p>
 
@@ -560,10 +601,8 @@ ${ids.map((id) => signalCard(signalsDir, id)).join("\n") || "<p>No signals publi
 
 <section>
 <h2 class="section-label">Recent changes</h2>
-${recent.length === 0 ? "<p>No changes published yet.</p>" : `<ul class="changes">
-${recent
-  .map((c) => changeItemHtml(c))
-  .join("\n")}
+${recent.length === 0 ? "<p class=\"change-empty\">No pricing changes yet.</p>" : `<ul class="changes">
+${recent.map((c) => changeRecordHtml(c)).join("\n")}
 </ul>`}
 <p><a href="/changes/">All changes</a></p>
 </section>`;
@@ -576,52 +615,70 @@ ${recent
   });
 }
 
-interface ChangeItem {
-  signalId: string;
-  publishedAt: string;
-  result: SignalResult;
+/**
+ * Most recent change records from the shared changes projection: observed
+ * records newest-first, then upcoming records (which have no publication
+ * time), capped at `limit`.
+ */
+function recentChangeRecords(signalsDir: string, limit: number): ChangeRecord[] {
+  const doc = changesFromSignalsDir(signalsDir);
+  const observed = doc.records
+    .filter((r) => r.kind === "observed")
+    .sort((a, b) =>
+      (a.publishedAt ?? "") < (b.publishedAt ?? "") ? 1 : -1,
+    );
+  const upcoming = doc.records.filter((r) => r.kind === "upcoming");
+  return [...observed, ...upcoming].slice(0, limit);
 }
 
-function recentChanges(signalsDir: string, limit: number): ChangeItem[] {
-  const items: ChangeItem[] = [];
-  for (const id of signalIds(signalsDir)) {
-    let doc: HistoryDocument;
-    try {
-      doc = loadHistory(signalsDir, id) as HistoryDocument;
-    } catch {
-      continue;
-    }
-    for (const entry of doc.entries) {
-      items.push({ signalId: id, publishedAt: entry.publishedAt, result: entry.result });
-    }
-  }
-  items.sort((a, b) => (a.publishedAt < b.publishedAt ? 1 : -1));
-  return items.slice(0, limit);
-}
-
-function changeItemHtml(c: ChangeItem): string {
-  const meta = signalMeta(c.signalId);
-  return `<li>
-<time datetime="${htmlEscape(c.publishedAt)}"><strong>${htmlEscape(
-    formatDate(c.publishedAt),
-  )}</strong></time> — ${htmlEscape(meta.title)}
-<div class="current-values">
-${c.result.values
-  .map(
-    (v) => `<div class="cv">
+function changeRecordHtml(record: ChangeRecord): string {
+  const meta = signalMeta(record.signalId);
+  const d = record.dimension;
+  const kindLabel = record.kind === "upcoming" ? "upcoming" : "observed";
+  const when =
+    record.kind === "observed"
+      ? record.publishedAt
+        ? `Observed <time datetime="${htmlEscape(record.publishedAt)}">${htmlEscape(
+            formatDate(record.publishedAt),
+          )}</time>`
+        : "Observed"
+      : record.effectiveAt
+        ? `Effective <time datetime="${htmlEscape(record.effectiveAt)}">${htmlEscape(
+            formatDate(record.effectiveAt),
+          )}</time>`
+        : "Effective date stated by the source";
+  const side = (label: string, statements: { value: number; note: string }[]) =>
+    `<div class="cv">
   <span class="value">${htmlEscape(
-    v.statements[0]
-      ? `${formatNumber(v.statements[0].value)} ${v.currency} ${unitLabel(v.unit)}`
-      : "",
+    statements.length === 0
+      ? "—"
+      : `${formatNumber(statements[0]!.value)} ${d.currency} ${unitLabel(d.unit)}`,
   )}</span>
-  <span class="qualifier">${htmlEscape(v.statements[0]?.note ?? "")}</span>
-</div>`,
-  )
-  .join("\n")}
+  ${statements.length > 1 ? `<span class="qualifier">${htmlEscape(
+    statements
+      .map((s) => `${formatNumber(s.value)} ${d.currency} ${unitLabel(d.unit)}${s.note ? ` — ${s.note}` : ""}`)
+      .join(" · "),
+  )}</span>` : statements[0]?.note ? `<span class="qualifier">${htmlEscape(statements[0].note)}</span>` : ""}
+</div>`;
+  return `<li class="change">
+<div class="change-head"><span class="change-kind ${record.kind}">${kindLabel}</span>${htmlEscape(
+    meta.title,
+  )} — <strong>${htmlEscape(d.label)}</strong></div>
+<div class="change-times">${when}</div>
+<div class="change-flow">
+${side("before", d.before)}
+<span class="change-arrow" aria-hidden="true">→</span>
+${side("after", d.after)}
 </div>
-<p class="meta-line">Source: <a href="${htmlEscape(c.result.source.url)}">${htmlEscape(
-    c.result.source.url,
-  )}</a> · <a href="/signals/${htmlEscape(c.signalId)}/">Details</a></p>
+<p class="change-source">Source: <a href="${htmlEscape(
+    record.source.url,
+  )}">${htmlEscape(record.source.url)}</a> (fetched <time datetime="${htmlEscape(
+    record.source.fetchedAt,
+  )}">${htmlEscape(formatDateShort(record.source.fetchedAt))}</time>) · <a href="/signals/${htmlEscape(
+    record.signalId,
+  )}/">Details</a> · <a href="/signals/${htmlEscape(
+    record.signalId,
+  )}/history/">History</a> · <a href="/compare/">Compare</a></p>
 </li>`;
 }
 
@@ -839,18 +896,33 @@ ${verificationHtml(entry.result)}
 }
 
 export function renderChanges(signalsDir: string): string {
-  const items = recentChanges(signalsDir, 50);
-  const body = `<h1>Recent changes</h1>
-<p class="lead">Published changes across all Signals, newest first.</p>
-${items.length === 0 ? "<p>No changes published yet.</p>" : `<ul class="changes">
-${items
-      .map((c) => changeItemHtml(c))
-      .join("\n")}
-</ul>`}`;
+  const doc = changesFromSignalsDir(signalsDir);
+  const observed = doc.records
+    .filter((r) => r.kind === "observed")
+    .sort((a, b) => ((a.publishedAt ?? "") < (b.publishedAt ?? "") ? 1 : -1));
+  const upcoming = doc.records.filter((r) => r.kind === "upcoming");
+  const body = `<h1>Pricing changes</h1>
+<p class="lead">Verified pricing changes across the tracked Signals, derived from the same canonical Signal current/history data as the detail pages — what has already changed and what the sources say is about to change.</p>
+
+<section>
+<h2 class="section-label">Observed changes</h2>
+${observed.length === 0 ? '<p class="change-empty">No observed pricing changes yet — every tracked Signal is still on its first published snapshot.</p>' : `<ul class="changes">
+${observed.map((c) => changeRecordHtml(c)).join("\n")}
+</ul>`}
+</section>
+
+<section>
+<h2 class="section-label">Upcoming changes</h2>
+${upcoming.length === 0 ? '<p class="change-empty">No upcoming pricing changes declared by the sources yet.</p>' : `<ul class="changes">
+${upcoming.map((c) => changeRecordHtml(c)).join("\n")}
+</ul>`}
+</section>
+
+<p class="cmp-legend">Every change is projected from canonical Signal data only: values, conditions, and notes are preserved verbatim from the authoritative source, and nothing is emitted where material pricing is unchanged. The same projection is available machine-readable at <a href="/api/v1/changes/index.json">/api/v1/changes/index.json</a>.</p>`;
   return layout({
-    title: "Recent changes — iolo.lol",
+    title: "Pricing changes — iolo.lol",
     description:
-      "Recently published Signal changes at iolo.lol: what changed, when, and from which official source.",
+      "Verified pricing changes across the tracked AI Signals: observed changes and upcoming effective changes with before/after values, conditions, and source provenance.",
     canonicalPath: "/changes/",
     body,
   });

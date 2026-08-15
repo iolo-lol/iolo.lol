@@ -1,5 +1,6 @@
 import { loadHistory, loadSignal, signalIds } from "./server.js";
 import { signalMeta } from "./meta.js";
+import { changesFromSignalsDir } from "./changes.js";
 
 export const DEFAULT_SITE_BASE = "https://iolo.lol";
 
@@ -12,81 +13,80 @@ function xmlEscape(value: string): string {
     .replaceAll("'", "&apos;");
 }
 
-/** Stable Atom identifier for one published change. */
-function entryId(signalId: string, publishedAt: string): string {
-  const stamp = publishedAt.replaceAll(/[^A-Za-z0-9]/g, "-");
-  return `tag:iolo.lol,2026:signal/${signalId}/${stamp}`;
+/** Stable Atom identifier for one projected change record. */
+function entryId(
+  signalId: string,
+  dimension: string,
+  stamp: string,
+): string {
+  const clean = stamp.replaceAll(/[^A-Za-z0-9]/g, "-");
+  return `tag:iolo.lol,2026:change/${signalId}/${dimension}/${clean}`;
 }
 
-interface HistoryEntry {
-  publishedAt: string;
-  result: {
-    observedAt: string;
-    source: { url: string; contentHash: string };
-    values: {
-      name: string;
-      currency: string;
-      statements: { value: number; note: string }[];
-    }[];
-  };
-}
-
-function valueSummary(entry: HistoryEntry["result"]): string {
-  return entry.values
+function statementSummary(
+  dimension: { currency: string },
+  statements: { value: number; note: string }[],
+): string {
+  if (statements.length === 0) return "not offered";
+  return statements
     .map(
-      (v) =>
-        `${v.name} ${v.statements
-          .map((s) => `${s.value} ${v.currency} (${s.note})`)
-          .join(", ")}`,
+      (s) =>
+        `${s.value} ${dimension.currency} per 1M tokens${s.note ? ` (${s.note})` : ""}`,
     )
     .join("; ");
 }
 
 /**
- * Atom feed of published canonical changes, one entry per history entry
- * (never per observation), newest first. Entries link to the human-readable
- * change-history page on the canonical origin.
+ * Atom feed of projected pricing changes — one entry per change record from
+ * the shared changes projection, never per unchanged snapshot. Observed
+ * entries use the publication time of the later snapshot; upcoming entries
+ * use the observation time of the current state (both deterministic from
+ * canonical data). Entries link to the Signal history drill-down page.
  */
 export function generateFeed(
   signalsDir: string,
   siteBase: string = DEFAULT_SITE_BASE,
 ): string {
-  const entries: { publishedAt: string; xml: string }[] = [];
-  for (const id of signalIds(signalsDir)) {
-    let history: { entries: HistoryEntry[] } | undefined;
-    try {
-      history = loadHistory(signalsDir, id) as { entries: HistoryEntry[] };
-    } catch {
-      continue;
-    }
-    const meta = signalMeta(id);
-    for (const entry of history.entries) {
-      const link = `${siteBase}/signals/${id}/history/`;
-      entries.push({
-        publishedAt: entry.publishedAt,
-        xml: `  <entry>
-    <id>${xmlEscape(entryId(id, entry.publishedAt))}</id>
-    <title>${xmlEscape(meta.title)} — published change</title>
-    <published>${xmlEscape(entry.publishedAt)}</published>
-    <updated>${xmlEscape(entry.publishedAt)}</updated>
+  const doc = changesFromSignalsDir(signalsDir);
+  const entries: { updated: string; xml: string }[] = [];
+  for (const record of doc.records) {
+    const meta = signalMeta(record.signalId);
+    const d = record.dimension;
+    const updated =
+      record.kind === "observed"
+        ? record.publishedAt ?? record.observedAt ?? ""
+        : record.observedAt ?? "";
+    const timeText =
+      record.kind === "observed"
+        ? `Observed ${record.observedAt ?? ""}`
+        : record.effectiveAt
+          ? `Effective ${record.effectiveAt}`
+          : "Effective date stated by the source";
+    const link = `${siteBase}/signals/${record.signalId}/history/`;
+    entries.push({
+      updated,
+      xml: `  <entry>
+    <id>${xmlEscape(
+      entryId(record.signalId, d.name, updated || "pending"),
+    )}</id>
+    <title>${xmlEscape(
+      `${meta.title} — ${d.label} ${record.kind === "upcoming" ? "upcoming change" : "change"}`,
+    )}</title>
+    <published>${xmlEscape(updated)}</published>
+    <updated>${xmlEscape(updated)}</updated>
     <link href="${xmlEscape(link)}"/>
-    <summary>Observed ${xmlEscape(
-      entry.result.observedAt,
-    )}. Values: ${xmlEscape(
-      valueSummary(entry.result),
-    )}. Source: ${xmlEscape(
-      entry.result.source.url,
-    )} (content ${xmlEscape(entry.result.source.contentHash)}).</summary>
+    <summary>${xmlEscape(
+      `${record.kind === "upcoming" ? "Upcoming" : "Observed"} change — ${d.label}: ${statementSummary(d, d.before)} → ${statementSummary(d, d.after)}. ${timeText}. Source: ${record.source.url} (content ${record.source.contentHash}). See https://iolo.lol/changes/ and ${link}.`,
+    )}</summary>
   </entry>`,
-      });
-    }
+    });
   }
-  entries.sort((a, b) => (a.publishedAt < b.publishedAt ? 1 : -1));
-  const latest = entries[0]?.publishedAt ?? new Date().toISOString();
+  entries.sort((a, b) => (a.updated < b.updated ? 1 : -1));
+  const latest = entries[0]?.updated ?? "";
   return `<?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
-  <title>iolo.lol Signals</title>
-  <id>tag:iolo.lol,2026:signals</id>
+  <title>iolo.lol Signal pricing changes</title>
+  <id>tag:iolo.lol,2026:changes</id>
   <updated>${xmlEscape(latest)}</updated>
   <author><name>iolo.lol</name></author>
   <link href="${xmlEscape(siteBase)}/feed.xml" rel="self"/>
@@ -97,7 +97,7 @@ ${entries.map((e) => e.xml).join("\n")}
 
 /**
  * Sitemap of the intended public human-facing and machine surfaces, with the
- * latest published change as lastmod.
+ * latest change timestamp as lastmod.
  */
 export function generateSitemap(
   signalsDir: string,
@@ -110,6 +110,7 @@ export function generateSitemap(
     { loc: `${siteBase}/changes/`, lastmod: "" },
     { loc: `${siteBase}/api/v1/signals.json`, lastmod: "" },
     { loc: `${siteBase}/api/v1/comparisons/index.json`, lastmod: "" },
+    { loc: `${siteBase}/api/v1/changes/index.json`, lastmod: "" },
   ];
   for (const id of signalIds(signalsDir)) {
     urls.push({ loc: `${siteBase}/signals/${id}/`, lastmod: "" });
