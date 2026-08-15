@@ -75,6 +75,35 @@ export const SIGNAL_META: Record<string, SignalMeta> = {
       "output-price": "Output price",
     },
   },
+  "openai-gpt-5.6-sol-usage-rates": {
+    title: "GPT-5.6 Sol usage rates",
+    provider: "OpenAI",
+    model: "GPT-5.6 Sol",
+    description:
+      "Usage rates for the GPT-5.6 Sol model from the OpenAI API, per 1 million tokens.",
+    valueLabels: {
+      "input-price": "Input price",
+      "input-price-cache-hit": "Input price (cache hit)",
+      "cache-writes": "Cache writes",
+      "output-price": "Output price",
+      "input-price-long-context": "Input price (long context)",
+      "input-price-long-context-cache-hit": "Input price (cache hit, long context)",
+      "cache-writes-long-context": "Cache writes (long context)",
+      "output-price-long-context": "Output price (long context)",
+    },
+  },
+  "deepinfra-kimi-k3-usage-rates": {
+    title: "Kimi-K3 usage rates",
+    provider: "DeepInfra",
+    model: "Kimi-K3",
+    description:
+      "Usage rates for the Kimi-K3 model (Moonshot AI) from the DeepInfra API, per 1 million tokens.",
+    valueLabels: {
+      "input-price": "Input price",
+      "input-price-cache-hit": "Input price (cache hit)",
+      "output-price": "Output price",
+    },
+  },
 };
 
 export function signalMeta(signalId: string): SignalMeta {

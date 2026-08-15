@@ -25,12 +25,14 @@ const addFormats = require("ajv-formats").default as FormatsPlugin;
  */
 
 describe("comparison projection (from real canonical Signals)", () => {
-  it("projects all five canonical Signals with identity and provenance", () => {
+  it("projects all seven canonical Signals with identity and provenance", () => {
     const doc = comparisonFromSignalsDir(DEFAULT_SIGNALS_DIR);
     expect(doc.entries.map((e) => e.signalId)).toEqual([
       "cohere-command-r-plus-08-2024-usage-rates",
+      "deepinfra-kimi-k3-usage-rates",
       "deepseek-v4-flash-usage-rates",
       "gemini-3.7-flash-usage-rates",
+      "openai-gpt-5.6-sol-usage-rates",
       "together-qwen3.8-2.4t-a95b-usage-rates",
       "xai-grok-4.6-usage-rates",
     ]);
@@ -41,6 +43,48 @@ describe("comparison projection (from real canonical Signals)", () => {
       expect(entry.source.contentHash).toMatch(/^sha256:[a-f0-9]{64}$/);
       expect(entry.dimensions.length).toBeGreaterThan(0);
     }
+  });
+
+  it("carries the M8 additions (OpenAI GPT-5.6 Sol, DeepInfra Kimi-K3) faithfully", () => {
+    const doc = comparisonFromSignalsDir(DEFAULT_SIGNALS_DIR);
+    const openai = doc.entries.find(
+      (e) => e.signalId === "openai-gpt-5.6-sol-usage-rates",
+    );
+    expect(openai).toBeDefined();
+    expect(openai!.provider).toBe("OpenAI");
+    expect(openai!.model).toBe("GPT-5.6 Sol");
+    const openaiDims = new Map(openai!.dimensions.map((d) => [d.name, d]));
+    expect(openaiDims.get("input-price")?.statements).toEqual([
+      { value: 5, note: "" },
+    ]);
+    expect(openaiDims.get("output-price")?.statements).toEqual([
+      { value: 30, note: "" },
+    ]);
+    expect(openaiDims.get("input-price-long-context")?.statements).toEqual([
+      { value: 10, note: "" },
+    ]);
+    expect(openaiDims.get("output-price-long-context")?.statements).toEqual([
+      { value: 45, note: "" },
+    ]);
+    // short + long context blocks are both preserved (8 dimensions total)
+    expect(openai!.dimensions).toHaveLength(8);
+
+    const kimi = doc.entries.find(
+      (e) => e.signalId === "deepinfra-kimi-k3-usage-rates",
+    );
+    expect(kimi).toBeDefined();
+    expect(kimi!.provider).toBe("DeepInfra");
+    expect(kimi!.model).toBe("Kimi-K3");
+    const kimiDims = new Map(kimi!.dimensions.map((d) => [d.name, d]));
+    expect(kimiDims.get("input-price")?.statements).toEqual([
+      { value: 2.85, note: "" },
+    ]);
+    expect(kimiDims.get("input-price-cache-hit")?.statements).toEqual([
+      { value: 0.285, note: "cached" },
+    ]);
+    expect(kimiDims.get("output-price")?.statements).toEqual([
+      { value: 14.25, note: "" },
+    ]);
   });
 
   it("preserves every DeepSeek window statement verbatim per dimension", () => {

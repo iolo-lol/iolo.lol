@@ -27,10 +27,10 @@ const addFormats = require("ajv-formats").default as FormatsPlugin;
  */
 
 describe("changes projection (real canonical Signals)", () => {
-  it("runs over all five canonical Signals and emits zero observed records from single-snapshot history", () => {
+  it("runs over all seven canonical Signals and emits zero observed records from single-snapshot history", () => {
     // the projection loads every canonical current+history file in data/signals/
     const ids = signalIds(DEFAULT_SIGNALS_DIR);
-    expect(ids).toHaveLength(5);
+    expect(ids).toHaveLength(7);
     const doc = changesFromSignalsDir(DEFAULT_SIGNALS_DIR);
     const observed = doc.records.filter((r) => r.kind === "observed");
     expect(observed).toEqual([]);
@@ -41,6 +41,20 @@ describe("changes projection (real canonical Signals)", () => {
       expect(record.source.url.startsWith("https://")).toBe(true);
       expect(record.source.contentHash).toMatch(/^sha256:[a-f0-9]{64}$/);
     }
+  });
+
+  it("emits no change records for the single-snapshot M8 additions", () => {
+    const doc = changesFromSignalsDir(DEFAULT_SIGNALS_DIR);
+    const openai = doc.records.filter(
+      (r) => r.signalId === "openai-gpt-5.6-sol-usage-rates",
+    );
+    // OpenAI's rates carry no future-effective notes: no upcoming records
+    expect(openai).toEqual([]);
+    const kimi = doc.records.filter(
+      (r) => r.signalId === "deepinfra-kimi-k3-usage-rates",
+    );
+    // DeepInfra Kimi-K3 "cached" is a concurrent condition, not a change
+    expect(kimi).toEqual([]);
   });
 
   it("emits exactly the canonical upcoming records", () => {
