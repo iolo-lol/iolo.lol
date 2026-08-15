@@ -2,7 +2,7 @@ kind: iolo-qa/v1
 id: QA-22-m5-coverage
 spec: SPEC-22-m5-coverage
 related_issue: "#22"
-status: in-progress
+status: passed
 owner: QA
 freshness: live
 ---
@@ -14,23 +14,31 @@ of Engineer summaries: engine fixture reproduction, live Agent runs across the
 five-Signal set, governed publication into the product repo, the generated
 five-Signal site, and both repos' CI.
 
+## Verification record (2026-08-15)
+
+Reference commits: engine `ec1d1af` + `435e3ea`, product `e9261d4`. Product
+CI (`check` + `deploy-dry-run`) and engine CI green at the accepted commits.
+Live Agent runs `07:48:07Z` and `07:48:40Z` (pre-publication), controlled
+error run `07:54:43Z`, post-publication run `07:54:55Z` — all five Signals,
+`orchestrator: "local-agent"`.
+
 | Requirement ID | Observable check | Evidence layer | Command, fixture, or CI job | Expected result | Result | Evidence boundary |
 | --- | --- | --- | --- | --- | --- | --- |
-| SPEC-22 REQ-001 | Three new Signals accepted with private extractors, provenance fixtures, and reproducing tests | review + unit + integration | read engine signal map + `fixtures/<signal>/{page.html,provenance.json}`; `pnpm --filter @iolo.lol/pipeline test` twice | 5 signals; sha256 + fetchedAt recorded; extractor + e2e tests green on both runs | pass | engine checkout; fixture hashes `ead567c4` (xai), `a922377c` (cohere), `a0bb04f9` (together) |
-| SPEC-22 REQ-002 | Five Signals canonical + history in product `data/signals/` via governed publication | data + compatibility | staged payloads from agent runs validated against result.v1/history.v1; committed to product repo; contracts unchanged (empty diff) | 5 `*.json`/`*.history.json` pairs; contract schemas untouched | pass | engine `runs/staged/` + product `data/signals/` + `git diff packages/contracts/schemas` |
+| SPEC-22 REQ-001 | Three new Signals accepted with private extractors, provenance fixtures, and reproducing tests | review + unit + integration | read engine signal map + `fixtures/<signal>/{page.html,provenance.json}`; `pnpm --filter @iolo.lol/pipeline test` twice | 5 signals; sha256 + fetchedAt recorded; extractor + e2e tests green on both runs | pass | engine checkout; fixture hashes `ead567c4` (xai), `a922377c` (cohere), `a0bb04f9` (together); 52/52 tests green twice |
+| SPEC-22 REQ-002 | Five Signals canonical + history in product `data/signals/` via governed publication | data + compatibility | staged payloads from agent runs validated against result.v1/history.v1; committed to product repo; contracts unchanged (empty diff) | 5 `*.json`/`*.history.json` pairs; contract schemas untouched | pass | engine `runs/staged/` + product `data/signals/` + empty `git diff packages/contracts/schemas` |
 | SPEC-22 REQ-003 | Human site/API/feed/sitemap correct for five Signals | integration + data | `pnpm --filter @iolo.lol/web generate`; diff generated API vs `data/signals/*`; grep pages/feed/sitemap | 5 ids in signals.json; all detail/history pages; 5 feed entries; canonical URLs; byte-identical API | pass | generated `packages/web/site` + captured `site.txt` |
 | SPEC-22 REQ-004 | No forbidden infrastructure; PublishPolicy writes only on `change` | review + unit | full diff of both repos; `planPublication`/`commitPublication` tests | no registry/crawler/LLM/queue/D1/KV/R2/dynamic backend; unchanged contracts | pass | diffs + pipeline publication-policy tests |
 | SPEC-22 REQ-005a | All five Signals match authoritative source evidence | data + editorial | extractor output vs recorded page content (fixtures + live fetches) | values verbatim from official pages | pass | fixture provenance + live run evidence |
-| SPEC-22 REQ-005b | Deterministic reproduction | integration | `pnpm --filter @iolo.lol/pipeline pipeline --signal <id> --fixture <dir>` twice per new signal | identical contentHash == provenance sha256, identical values | pass | `fixture-repro.log` |
-| SPEC-22 REQ-005c | Unchanged-run/no-false-change | scenario | local Agent run twice (pre-publication) and once post-publication | unchanged verdicts stable; no spurious change; new signals `change` only while canonical absent | pass | `agent-run-1.json`, `agent-run-2.json`, post-publication run |
-| SPEC-22 REQ-005d | Error/no-write | scenario | unreachable-source agent run (fixture-error harness) | error evidence recorded; product checkout untouched | pass | engine error-run evidence + agent tests |
-| SPEC-22 REQ-005e | Local Agent across the expanded set | integration | `pnpm --filter @iolo.lol/pipeline agent --config <engine>/agent.config.json` | 5 signalIds, per-signal evidence, `orchestrator: local-agent`, exit 0 | pass | `runs/agent-*.json` |
+| SPEC-22 REQ-005b | Deterministic reproduction | integration | `pnpm --filter @iolo.lol/pipeline pipeline --signal <id> --fixture <dir>` twice per new signal | identical contentHash == provenance sha256, identical values | pass | `fixture-repro.log` (both runs identical) |
+| SPEC-22 REQ-005c | Unchanged-run/no-false-change | scenario | local Agent run twice (pre-publication) and once post-publication | unchanged verdicts stable; no spurious change; new signals `change` only while canonical absent | pass | `agent-run-1.json`, `agent-run-2.json` (identical verdicts), post-publication run: all five `unchanged` |
+| SPEC-22 REQ-005d | Error/no-write | scenario | unreachable-source agent run across the five-Signal set | error evidence recorded; product checkout untouched | pass | `agent-run-error.json` (all five `error`, exit 1) + product checkout unmodified |
+| SPEC-22 REQ-005e | Local Agent across the expanded set | integration | `pnpm --filter @iolo.lol/pipeline agent --config <engine>/agent.config.json` | 5 signalIds, per-signal evidence, `orchestrator: local-agent`, exit 0 | pass | `runs/agent-*.json` (four runs) |
 | SPEC-22 REQ-005f | Governed publication | compatibility | agent never writes product checkout; payloads staged then committed after validation | staged-only until validated; canonical+history committed together | pass | agent tests + `runs/staged/` + product commits |
 | SPEC-22 REQ-005g | Canonical/history correctness | data | contract validation of every staged payload; history entries carry provenance | valid result.v1/history.v1; entries have source hash/fetchedAt/url | pass | validation script + product data |
 | SPEC-22 REQ-005h | Human website/API/feed/sitemap correctness | integration + scenario | generated pages; `wrangler deploy --dry-run`; local `wrangler dev` route probe | all pages 200, JSON/XML content types, custom 404, canonical links | pass | dry-run (42 assets) + dev-server probe |
 | SPEC-22 REQ-005i | Cloudflare production deployment | integration | live Cloudflare surface checks (blocked) + identical-build dry-run | REQ-002/003/007 of QA-20 | blocked | single external action named in #20 (Cloudflare account + `iolo.lol` DNS) |
-| SPEC-22 REQ-005j | Product + engine CI green | compatibility | GitHub Actions on both repos at accepted commits | green | in-progress | CI runs after push |
-| SPEC-22 REQ-006 | Post-M5 reassessment resolves five candidates, none implemented | review | read `docs/roadmap/post-m5-reassessment.md` | all five directions resolved; no implementation | planned | reassessment doc |
+| SPEC-22 REQ-005j | Product + engine CI green | compatibility | GitHub Actions on both repos at accepted commits | green | pass | product CI `check`+`deploy-dry-run` and engine CI at e9261d4 / 435e3ea |
+| SPEC-22 REQ-006 | Post-M5 reassessment resolves five candidates, none implemented | review | read `docs/roadmap/post-m5-reassessment.md` | all five directions resolved; no implementation | pass | reassessment doc |
 
 ## Data/editorial evidence plan
 
