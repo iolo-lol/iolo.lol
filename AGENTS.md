@@ -35,6 +35,26 @@ frontend/backend layering. Public contracts live here and are consumed by the
 engine; the engine never publishes or changes public contracts on its own.
 See [`docs/architecture.md`](docs/architecture.md) and its ADRs.
 
+## Automation and scheduling
+
+Use the execution contract in
+[ADR-0006](docs/adr/0006-composable-agent-execution.md):
+`Schedule -> Agent Runner -> Job -> Tools -> Sink`.
+
+- `automatic`, `scheduled`, `daily`, `hourly`, `periodic`, and `recurring`
+  describe behavior/cadence; they do not select a scheduler or Agent runtime.
+- Do not introduce GitHub Actions cron, Cloudflare Cron, launchd, cron/systemd,
+  a container scheduler, or another runtime merely because an issue uses those
+  words. A concrete runtime must be explicitly required or justified by cost,
+  privacy, reliability, observability, and maintenance evidence.
+- GitHub Actions and Cloudflare Cron are valid execution profiles when they are
+  the smallest responsible choice; they are not globally preferred or banned.
+- Prefer short scheduled prompts that invoke a durable repository job/tool
+  contract. Do not duplicate the full job specification in scheduler prompts.
+- Both `Agent scheduler -> shell/tool` and `host scheduler -> Agent CLI -> tool`
+  are valid. Preserve runner neutrality unless the active issue intentionally
+  narrows it.
+
 ## Signals and Oddities
 
 - **Signals**: structured, continuously updated information.
