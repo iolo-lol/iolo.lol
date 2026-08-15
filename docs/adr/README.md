@@ -31,3 +31,4 @@ contracts in [`architecture.md`](../architecture.md) and the
 * [ADR-0003: Public runtime — static hosting of canonical signal state](0003-public-runtime-static-hosting.md)
 * [ADR-0004: Canonical production domain and human-facing information architecture](0004-canonical-domain-and-human-ia.md)
 * [ADR-0005: Production runtime — Cloudflare Workers Static Assets](0005-workers-static-assets.md)
+* [ADR-0006: Composable scheduled Agent execution](0006-composable-agent-execution.md)
