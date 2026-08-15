@@ -84,6 +84,14 @@ describe("read API", () => {
     });
   });
 
+  it("serves the signals list at the static artifact URL too", async () => {
+    const res = await fetch(`${baseUrl}/api/v1/signals.json`);
+    expect(res.status).toBe(200);
+    expect(await res.json()).toEqual({
+      signals: ["gemini-3.7-flash-usage-rates"],
+    });
+  });
+
   it("returns the canonical Result for a signal", async () => {
     const res = await fetch(
       `${baseUrl}/api/v1/signals/gemini-3.7-flash-usage-rates`,
