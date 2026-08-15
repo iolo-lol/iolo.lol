@@ -104,6 +104,64 @@ export const SIGNAL_META: Record<string, SignalMeta> = {
       "output-price": "Output price",
     },
   },
+  "openai-gpt-5.6-terra-usage-rates": {
+    title: "GPT-5.6 Terra usage rates",
+    provider: "OpenAI",
+    model: "GPT-5.6 Terra",
+    description:
+      "Usage rates for the GPT-5.6 Terra model from the OpenAI API, per 1 million tokens.",
+    valueLabels: {
+      "input-price": "Input price",
+      "input-price-cache-hit": "Input price (cache hit)",
+      "cache-writes": "Cache writes",
+      "output-price": "Output price",
+      "input-price-long-context": "Input price (long context)",
+      "input-price-long-context-cache-hit": "Input price (cache hit, long context)",
+      "cache-writes-long-context": "Cache writes (long context)",
+      "output-price-long-context": "Output price (long context)",
+    },
+  },
+  "openai-gpt-5.6-luna-usage-rates": {
+    title: "GPT-5.6 Luna usage rates",
+    provider: "OpenAI",
+    model: "GPT-5.6 Luna",
+    description:
+      "Usage rates for the GPT-5.6 Luna model from the OpenAI API, per 1 million tokens.",
+    valueLabels: {
+      "input-price": "Input price",
+      "input-price-cache-hit": "Input price (cache hit)",
+      "cache-writes": "Cache writes",
+      "output-price": "Output price",
+      "input-price-long-context": "Input price (long context)",
+      "input-price-long-context-cache-hit": "Input price (cache hit, long context)",
+      "cache-writes-long-context": "Cache writes (long context)",
+      "output-price-long-context": "Output price (long context)",
+    },
+  },
+  "deepinfra-deepseek-v4-pro-usage-rates": {
+    title: "DeepSeek-V4-Pro usage rates",
+    provider: "DeepInfra",
+    model: "DeepSeek-V4-Pro",
+    description:
+      "Usage rates for the DeepSeek-V4-Pro model (DeepSeek) from the DeepInfra API, per 1 million tokens.",
+    valueLabels: {
+      "input-price": "Input price",
+      "input-price-cache-hit": "Input price (cache hit)",
+      "output-price": "Output price",
+    },
+  },
+  "deepinfra-qwen3.8-max-usage-rates": {
+    title: "Qwen3.8-Max usage rates",
+    provider: "DeepInfra",
+    model: "Qwen3.8-Max",
+    description:
+      "Usage rates for the Qwen3.8-Max model (Alibaba Cloud Qwen) from the DeepInfra API, per 1 million tokens.",
+    valueLabels: {
+      "input-price": "Input price",
+      "input-price-cache-hit": "Input price (cache hit)",
+      "output-price": "Output price",
+    },
+  },
 };
 
 export function signalMeta(signalId: string): SignalMeta {
