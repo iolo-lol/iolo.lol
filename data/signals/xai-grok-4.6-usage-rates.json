@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 1,
+  "signalId": "xai-grok-4.6-usage-rates",
+  "observedAt": "2026-08-15T07:48:44.309Z",
+  "source": {
+    "url": "https://docs.x.ai/docs/models",
+    "fetchedAt": "2026-08-15T07:48:44.032Z",
+    "contentHash": "sha256:be8944b39eb0136fe21f3e2dee18629d71b560848a76dcf045f805ebfb06de6d"
+  },
+  "values": [
+    {
+      "name": "input-price",
+      "unit": "per-1m-tokens",
+      "currency": "USD",
+      "statements": [
+        {
+          "value": 2,
+          "note": ""
+        }
+      ]
+    },
+    {
+      "name": "output-price",
+      "unit": "per-1m-tokens",
+      "currency": "USD",
+      "statements": [
+        {
+          "value": 6,
+          "note": ""
+        }
+      ]
+    }
+  ]
+}

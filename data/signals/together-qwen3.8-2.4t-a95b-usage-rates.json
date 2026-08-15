@@ -1,0 +1,45 @@
+{
+  "schemaVersion": 1,
+  "signalId": "together-qwen3.8-2.4t-a95b-usage-rates",
+  "observedAt": "2026-08-15T07:48:46.527Z",
+  "source": {
+    "url": "https://www.together.ai/pricing",
+    "fetchedAt": "2026-08-15T07:48:46.287Z",
+    "contentHash": "sha256:a0bb04f9fb639c1101f906c73c8182ffcca96a26c8ea9d24be0eacecb42e3f26"
+  },
+  "values": [
+    {
+      "name": "input-price",
+      "unit": "per-1m-tokens",
+      "currency": "USD",
+      "statements": [
+        {
+          "value": 2.5,
+          "note": ""
+        }
+      ]
+    },
+    {
+      "name": "input-price-cache-hit",
+      "unit": "per-1m-tokens",
+      "currency": "USD",
+      "statements": [
+        {
+          "value": 0.5,
+          "note": "cached"
+        }
+      ]
+    },
+    {
+      "name": "output-price",
+      "unit": "per-1m-tokens",
+      "currency": "USD",
+      "statements": [
+        {
+          "value": 6.25,
+          "note": ""
+        }
+      ]
+    }
+  ]
+}

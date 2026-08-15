@@ -9,7 +9,7 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
 import { generateSite } from "../src/static.js";
-import { DEFAULT_SIGNALS_DIR } from "../src/server.js";
+import { DEFAULT_SIGNALS_DIR, signalIds } from "../src/server.js";
 
 const REAL_RESULT = JSON.parse(
   readFileSync(
@@ -28,38 +28,38 @@ const REAL_HISTORY = JSON.parse(
 describe("static site generator", () => {
   it("renders the human-facing pages and API files from canonical data", () => {
     const outDir = mkdtempSync(path.join(tmpdir(), "iolo-static-"));
+    const ids = signalIds(DEFAULT_SIGNALS_DIR);
     const files = generateSite(DEFAULT_SIGNALS_DIR, outDir);
-    expect(files).toEqual([
+    const expected = [
       "index.html",
       "signals/index.html",
       "changes/index.html",
       "404.html",
-      "signals/deepseek-v4-flash-usage-rates/index.html",
-      "signals/deepseek-v4-flash-usage-rates/history/index.html",
-      "signals/gemini-3.7-flash-usage-rates/index.html",
-      "signals/gemini-3.7-flash-usage-rates/history/index.html",
+      ...ids.flatMap((id) => [
+        `signals/${id}/index.html`,
+        `signals/${id}/history/index.html`,
+      ]),
       "api/v1/signals.json",
       "feed.xml",
       "sitemap.xml",
-      "api/v1/signals/deepseek-v4-flash-usage-rates.json",
-      "api/v1/signals/deepseek-v4-flash-usage-rates.history.json",
-      "api/v1/signals/gemini-3.7-flash-usage-rates.json",
-      "api/v1/signals/gemini-3.7-flash-usage-rates.history.json",
-    ]);
+      ...ids.flatMap((id) => [
+        `api/v1/signals/${id}.json`,
+        `api/v1/signals/${id}.history.json`,
+      ]),
+    ];
+    expect(files).toEqual(expected);
 
     const home = readFileSync(path.join(outDir, "index.html"), "utf8");
     expect(home).toContain("Gemini 3.7 Flash usage rates");
     expect(home).toContain("DeepSeek V4 Flash usage rates");
+    expect(home).toContain("Grok 4.6 usage rates");
+    expect(home).toContain("Command R+ 08-2024 usage rates");
+    expect(home).toContain("Qwen3.8-2.4T-A95B usage rates");
     expect(home).toContain("What are Signals?");
 
     expect(
       JSON.parse(readFileSync(path.join(outDir, "api/v1/signals.json"), "utf8")),
-    ).toEqual({
-      signals: [
-        "deepseek-v4-flash-usage-rates",
-        "gemini-3.7-flash-usage-rates",
-      ],
-    });
+    ).toEqual({ signals: ids });
     expect(
       JSON.parse(
         readFileSync(

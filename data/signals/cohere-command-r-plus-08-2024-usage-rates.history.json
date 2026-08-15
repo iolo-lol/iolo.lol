@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 1,
+  "signalId": "cohere-command-r-plus-08-2024-usage-rates",
+  "entries": [
+    {
+      "publishedAt": "2026-08-15T07:48:45.810Z",
+      "result": {
+        "schemaVersion": 1,
+        "signalId": "cohere-command-r-plus-08-2024-usage-rates",
+        "observedAt": "2026-08-15T07:48:45.807Z",
+        "source": {
+          "url": "https://cohere.com/pricing",
+          "fetchedAt": "2026-08-15T07:48:45.170Z",
+          "contentHash": "sha256:246bdf677076f62567a0b310b40d593a197932642f073b05a23d68a56d4fa9ce"
+        },
+        "values": [
+          {
+            "name": "input-price",
+            "unit": "per-1m-tokens",
+            "currency": "USD",
+            "statements": [
+              {
+                "value": 2.5,
+                "note": ""
+              }
+            ]
+          },
+          {
+            "name": "output-price",
+            "unit": "per-1m-tokens",
+            "currency": "USD",
+            "statements": [
+              {
+                "value": 10,
+                "note": ""
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

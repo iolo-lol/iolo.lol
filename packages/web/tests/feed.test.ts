@@ -1,4 +1,4 @@
-import { mkdtempSync, readFileSync } from "node:fs";
+import { mkdtempSync, readdirSync, readFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
@@ -10,27 +10,16 @@ describe("Atom change feed", () => {
   it("contains one entry per published canonical change", () => {
     const feed = generateFeed(DEFAULT_SIGNALS_DIR);
     const entries = feed.match(/<entry>/g) ?? [];
-    const geminiHistory = JSON.parse(
-      readFileSync(
-        path.join(
-          DEFAULT_SIGNALS_DIR,
-          "gemini-3.7-flash-usage-rates.history.json",
-        ),
-        "utf8",
-      ),
-    ) as { entries: unknown[] };
-    const deepseekHistory = JSON.parse(
-      readFileSync(
-        path.join(
-          DEFAULT_SIGNALS_DIR,
-          "deepseek-v4-flash-usage-rates.history.json",
-        ),
-        "utf8",
-      ),
-    ) as { entries: unknown[] };
-    expect(entries.length).toBe(
-      geminiHistory.entries.length + deepseekHistory.entries.length,
+    const historyFiles = readdirSync(DEFAULT_SIGNALS_DIR).filter((name) =>
+      name.endsWith(".history.json"),
     );
+    const expected = historyFiles.reduce((sum, file) => {
+      const doc = JSON.parse(
+        readFileSync(path.join(DEFAULT_SIGNALS_DIR, file), "utf8"),
+      ) as { entries: unknown[] };
+      return sum + doc.entries.length;
+    }, 0);
+    expect(entries.length).toBe(expected);
   });
 
   it("uses stable tag ids, meaningful timestamps, and provenance", () => {
@@ -40,6 +29,9 @@ describe("Atom change feed", () => {
     expect(feed).toContain("content sha256:");
     expect(feed).toContain("ai.google.dev/gemini-api/docs/pricing");
     expect(feed).toContain("api-docs.deepseek.com/quick_start/pricing/");
+    expect(feed).toContain("docs.x.ai/docs/models");
+    expect(feed).toContain("cohere.com/pricing");
+    expect(feed).toContain("www.together.ai/pricing");
     expect(feed).toContain(
       "https://iolo.lol/signals/gemini-3.7-flash-usage-rates/history/",
     );

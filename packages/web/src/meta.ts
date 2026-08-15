@@ -37,6 +37,37 @@ export const SIGNAL_META: Record<string, SignalMeta> = {
       "output-price": "Output price",
     },
   },
+  "xai-grok-4.6-usage-rates": {
+    title: "Grok 4.6 usage rates",
+    provider: "xAI",
+    description:
+      "Usage rates for the Grok 4.6 model from the xAI API, per 1 million tokens.",
+    valueLabels: {
+      "input-price": "Input price",
+      "output-price": "Output price",
+    },
+  },
+  "cohere-command-r-plus-08-2024-usage-rates": {
+    title: "Command R+ 08-2024 usage rates",
+    provider: "Cohere",
+    description:
+      "Usage rates for the Command R+ 08-2024 model from the Cohere API, per 1 million tokens.",
+    valueLabels: {
+      "input-price": "Input price",
+      "output-price": "Output price",
+    },
+  },
+  "together-qwen3.8-2.4t-a95b-usage-rates": {
+    title: "Qwen3.8-2.4T-A95B usage rates",
+    provider: "Together AI",
+    description:
+      "Usage rates for the Qwen3.8-2.4T-A95B model from the Together AI API, per 1 million tokens.",
+    valueLabels: {
+      "input-price": "Input price",
+      "input-price-cache-hit": "Input price (cache hit)",
+      "output-price": "Output price",
+    },
+  },
 };
 
 export function signalMeta(signalId: string): SignalMeta {
