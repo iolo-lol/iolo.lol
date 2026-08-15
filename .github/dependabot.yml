@@ -1,0 +1,30 @@
+# Dependabot version updates for the iolo.lol product repository.
+# Version updates only; security updates are governed by repository settings.
+version: 2
+updates:
+  # The npm ecosystem covers the pnpm workspace: the root package.json and
+  # the packages/* workspaces share one root pnpm-lock.yaml.
+  - package-ecosystem: "npm"
+    directories:
+      - "/"
+      - "/packages/*"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 10
+    groups:
+      # Bundle safe minor/patch bumps into one PR; major versions arrive as
+      # individual PRs for human review.
+      minor-and-patch:
+        update-types: ["minor", "patch"]
+
+  # GitHub Actions workflows (ci.yml, pages.yml).
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    groups:
+      actions:
+        patterns:
+          - "*"
