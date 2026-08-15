@@ -9,12 +9,14 @@ import {
 } from "./server.js";
 import {
   renderChanges,
+  renderCompare,
   renderHome,
   renderNotFound,
   renderSignalDetail,
   renderSignalHistory,
   renderSignalsIndex,
 } from "./pages.js";
+import { comparisonFromSignalsDir } from "./compare.js";
 import { DEFAULT_SITE_BASE, generateFeed, generateSitemap } from "./feed.js";
 
 export const DEFAULT_OUTPUT_DIR = fileURLToPath(
@@ -52,6 +54,7 @@ export function generateSite(
   const pageFiles: { html: string; path: string; render: () => string }[] = [
     { html: "index.html", path: "index.html", render: () => renderHome(signalsDir) },
     { html: "signals/index.html", path: "signals/index.html", render: () => renderSignalsIndex(signalsDir) },
+    { html: "compare/index.html", path: "compare/index.html", render: () => renderCompare(signalsDir) },
     { html: "changes/index.html", path: "changes/index.html", render: () => renderChanges(signalsDir) },
     { html: "404.html", path: "404.html", render: () => renderNotFound() },
   ];
@@ -81,6 +84,13 @@ export function generateSite(
     signals: signalIds(signalsDir),
   });
   written.push("api/v1/signals.json");
+
+  writeJson(
+    outDir,
+    path.join("api", "v1", "comparisons", "index.json"),
+    comparisonFromSignalsDir(signalsDir),
+  );
+  written.push("api/v1/comparisons/index.json");
 
   writeText(outDir, path.join("feed.xml"), generateFeed(signalsDir, siteBase));
   written.push("feed.xml");

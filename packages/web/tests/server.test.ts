@@ -162,6 +162,36 @@ describe("web surface", () => {
     expect(html).toContain("Gemini 3.7 Flash usage rates");
   });
 
+  it("comparison page renders all providers with conditional prices visible", async () => {
+    const res = await fetch(`${baseUrl}/compare/`);
+    expect(res.status).toBe(200);
+    const html = await res.text();
+    expect(html).toContain("Compare AI pricing");
+    expect(html).toContain("Gemini 3.7 Flash");
+    expect(html).toContain("Google");
+    expect(html).toContain("through December 31, 2026");
+    expect(html).toContain("starting January 1, 2027");
+    expect(html).toContain("details &amp; source");
+  });
+
+  it("comparison API returns the same projection document as the generator", async () => {
+    const res = await fetch(`${baseUrl}/api/v1/comparisons/index.json`);
+    expect(res.status).toBe(200);
+    const body = await res.json();
+    const doc = body as {
+      schemaVersion: number;
+      entries: { signalId: string; dimensions: { statements: unknown[] }[] }[];
+    };
+    expect(doc.schemaVersion).toBe(1);
+    const ids = doc.entries.map((e) => e.signalId);
+    expect(ids).toContain("gemini-3.7-flash-usage-rates");
+    // the fixture signal has two dated statements per dimension
+    const gemini = doc.entries.find(
+      (e) => e.signalId === "gemini-3.7-flash-usage-rates",
+    );
+    expect(gemini!.dimensions[0]!.statements).toHaveLength(2);
+  });
+
   it("unknown page renders a 404 page", async () => {
     const res = await fetch(`${baseUrl}/signals/nope/`);
     expect(res.status).toBe(404);

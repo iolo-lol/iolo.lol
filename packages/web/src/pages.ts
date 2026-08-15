@@ -6,6 +6,13 @@ import {
   unitLabel,
   valueLabel,
 } from "./meta.js";
+import {
+  buildComparison,
+  comparisonFromSignalsDir,
+  type ComparisonDimension,
+  type ComparisonDocument,
+  type ComparisonEntry,
+} from "./compare.js";
 import { loadHistory, loadSignal, signalIds, type HistoryEntry } from "./server.js";
 import { htmlEscape } from "./escape.js";
 
@@ -420,6 +427,22 @@ ol.history .num {
     }
   }
 }
+
+/* Comparison page */
+.compare-wrap { overflow-x: auto; margin: 1.25rem 0; }
+table.compare { min-width: 48rem; }
+table.compare th, table.compare td { border-bottom: 1px solid var(--line); }
+th.cmp-provider-col { min-width: 11.5rem; }
+.cmp-provider { font-weight: 650; color: var(--ink); font-size: 0.95rem; }
+.cmp-model { color: var(--muted); font-weight: 500; font-size: 0.85rem; margin-top: 0.15rem; }
+.cmp-fresh { color: var(--quiet); font-size: 0.75rem; margin-top: 0.4rem; line-height: 1.45; }
+.cmp-fresh a { color: var(--accent); }
+.cmp-cell .cmp-value, .cmp-cell .cmp-note { display: block; }
+.cmp-value { font-weight: 650; color: var(--ink); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.cmp-value.cmp-alt { font-weight: 500; color: var(--muted); font-size: 0.85rem; margin-top: 0.3rem; }
+.cmp-note { color: var(--muted); font-size: 0.78rem; line-height: 1.45; }
+.cmp-na { color: var(--quiet); text-align: center; }
+.cmp-legend { color: var(--muted); font-size: 0.875rem; max-width: 52rem; }
 </style>
 </head>
 <body>
@@ -427,6 +450,7 @@ ol.history .num {
 <nav>
 <span class="brand"><a href="/">iolo.lol<small>Signals</small></a></span>
 <a class="nav" href="/signals/">Signals</a>
+<a class="nav" href="/compare/">Compare</a>
 <a class="nav" href="/changes/">Recent changes</a>
 <a class="nav" href="/feed.xml">Feed</a>
 </nav>
@@ -611,6 +635,92 @@ ${ids.map((id) => signalCard(signalsDir, id)).join("\n") || "<p>No signals publi
     description:
       "The Signals iolo.lol tracks: current values, freshness, and change history from official sources.",
     canonicalPath: "/signals/",
+    body,
+  });
+}
+
+function compareHeaderCellHtml(entry: ComparisonEntry): string {
+  return `<th scope="col" class="cmp-provider-col">
+<div class="cmp-provider">${htmlEscape(entry.provider)}</div>
+<div class="cmp-model">${htmlEscape(entry.model)}</div>
+<div class="cmp-fresh">checked <time datetime="${htmlEscape(
+    entry.observedAt,
+  )}">${htmlEscape(formatDateShort(entry.observedAt))}</time><br><a href="/signals/${htmlEscape(
+    entry.signalId,
+  )}/">details &amp; source</a></div>
+</th>`;
+}
+
+function compareCellHtml(dimension: ComparisonDimension | undefined): string {
+  if (!dimension) {
+    return '<td class="cmp-na" aria-label="not offered">—</td>';
+  }
+  const lines = dimension.statements
+    .map((statement, index) => {
+      const value = `${formatNumber(statement.value)} ${dimension.currency} ${unitLabel(
+        dimension.unit,
+      )}`;
+      const note = statement.note
+        ? `<span class="cmp-note">${htmlEscape(statement.note)}</span>`
+        : "";
+      return `<span class="cmp-value${index === 0 ? "" : " cmp-alt"}">${htmlEscape(
+        value,
+      )}</span>${note}`;
+    })
+    .join("\n");
+  return `<td class="cmp-cell">${lines}</td>`;
+}
+
+export function renderCompare(signalsDir: string): string {
+  const doc: ComparisonDocument = comparisonFromSignalsDir(signalsDir);
+  if (doc.entries.length === 0) {
+    return layout({
+      title: "Compare — iolo.lol",
+      description: "Compare AI usage rates across the tracked Signals.",
+      canonicalPath: "/compare/",
+      body: "<h1>Compare</h1><p>No Signals published yet.</p>",
+    });
+  }
+  const dimensionNames = [
+    ...new Set(doc.entries.flatMap((entry) => entry.dimensions.map((d) => d.name))),
+  ].sort();
+  const labelFor = (name: string): string => {
+    for (const entry of doc.entries) {
+      const dim = entry.dimensions.find((d) => d.name === name);
+      if (dim) return dim.label;
+    }
+    return name;
+  };
+  const body = `<h1>Compare AI pricing</h1>
+<p class="lead">Usage rates across the five tracked AI models, projected from the same canonical Signal data as the detail pages. Rates are USD per 1 million tokens.</p>
+<div class="compare-wrap">
+<table class="compare">
+<thead>
+<tr>
+<th scope="col">Rate</th>
+${doc.entries.map((entry) => compareHeaderCellHtml(entry)).join("\n")}
+</tr>
+</thead>
+<tbody>
+${dimensionNames
+    .map(
+      (name) => `<tr>
+<th scope="row">${htmlEscape(labelFor(name))}</th>
+${doc.entries
+        .map((entry) => compareCellHtml(entry.dimensions.find((d) => d.name === name)))
+        .join("\n")}
+</tr>`,
+    )
+    .join("\n")}
+</tbody>
+</table>
+</div>
+<p class="cmp-legend">Where a rate has more than one statement, the first is the currently applicable value; the rest are the provider's stated conditions — temporary pricing, peak/off-peak windows, or cache hit/miss — preserved verbatim. Open a provider's <em>details &amp; source</em> for the full provenance of every value. The same projection is available machine-readable at <a href="/api/v1/comparisons/index.json">/api/v1/comparisons/index.json</a>.</p>`;
+  return layout({
+    title: "Compare AI pricing — iolo.lol",
+    description:
+      "Compare the tracked AI usage rates side by side: all five providers, conditional pricing kept visible, with source and freshness for every value.",
+    canonicalPath: "/compare/",
     body,
   });
 }

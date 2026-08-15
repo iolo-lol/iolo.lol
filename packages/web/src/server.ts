@@ -4,12 +4,14 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import {
   renderChanges,
+  renderCompare,
   renderHome,
   renderNotFound,
   renderSignalDetail,
   renderSignalHistory,
   renderSignalsIndex,
 } from "./pages.js";
+import { comparisonFromSignalsDir } from "./compare.js";
 import { generateFeed, generateSitemap } from "./feed.js";
 
 export const DEFAULT_SIGNALS_DIR = fileURLToPath(
@@ -135,6 +137,10 @@ export function createApp(signalsDir: string): Server {
       sendHtml(res, 200, renderChanges(signalsDir));
       return;
     }
+    if (pathname === "/compare/" || pathname === "/compare/index.html") {
+      sendHtml(res, 200, renderCompare(signalsDir));
+      return;
+    }
     if (pathname === "/feed.xml") {
       sendText(
         res,
@@ -180,6 +186,10 @@ export function createApp(signalsDir: string): Server {
     const historyApiMatch = pathname.match(
       /^\/api\/v1\/signals\/([^/]+)\/history$/,
     );
+    if (pathname === "/api/v1/comparisons/index.json") {
+      sendJson(res, 200, comparisonFromSignalsDir(signalsDir));
+      return;
+    }
     if (signalsMatch) {
       sendJson(res, 200, { signals: signalIds(signalsDir) });
       return;

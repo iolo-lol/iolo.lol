@@ -106,8 +106,10 @@ export function generateSitemap(
   const urls: { loc: string; lastmod: string }[] = [
     { loc: `${siteBase}/`, lastmod: "" },
     { loc: `${siteBase}/signals/`, lastmod: "" },
+    { loc: `${siteBase}/compare/`, lastmod: "" },
     { loc: `${siteBase}/changes/`, lastmod: "" },
     { loc: `${siteBase}/api/v1/signals.json`, lastmod: "" },
+    { loc: `${siteBase}/api/v1/comparisons/index.json`, lastmod: "" },
   ];
   for (const id of signalIds(signalsDir)) {
     urls.push({ loc: `${siteBase}/signals/${id}/`, lastmod: "" });
