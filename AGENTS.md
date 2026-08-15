@@ -12,8 +12,12 @@ issues, architecture, or test documentation.
 
 For multi-role work, read the [Agent Team contract](docs/agent-team.md) for
 role authority, workflow, blocked routes, spec/QA-plan schemas, and evidence
-traceability. GitHub issues remain the product scope and roadmap; do not copy
-their state into `docs/`.
+traceability. The project roadmap and milestone planning live in
+`iolo-lol/engine` GitHub issues; this repository is the public
+presentation/distribution surface, not the planning or roadmap authority.
+Product-repo issues are reserved for genuinely public-repository-local
+concerns when there is a concrete reason to expose them here; do not copy
+issue state into `docs/`.
 
 Before editing, read the active issue and acceptance criteria, inspect the
 branch and working-tree status, and identify the authoritative artifact: the
@@ -25,10 +29,12 @@ public contracts.
 
 ## Cross-repo boundary
 
-- `iolo-lol/iolo.lol` (this repo): product, public contracts, web/API
-  presentation, community-facing surfaces.
-- `iolo-lol/engine`: private ingestion, automation, editorial logic, and
-  operational implementation.
+- `iolo-lol/engine`: private ingestion, automation, editorial logic,
+  operational implementation, and the roadmap/architecture control plane.
+  Milestone planning and cross-repo implementation coordination live there,
+  with frontend work delivered by linked PRs to this repository.
+- `iolo-lol/iolo.lol` (this repo): public presentation and distribution —
+  product, public contracts, web/API presentation, community-facing surfaces.
 
 The split is based on visibility and operational responsibility, not
 frontend/backend layering. Public contracts live here and are consumed by the

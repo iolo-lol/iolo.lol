@@ -1,11 +1,36 @@
 # iolo.lol Cross-repo Architecture and Contract Ownership
 
-Status: live contract for [iolo.lol#5](https://github.com/iolo-lol/iolo.lol/issues/5)
+Status: live contract for [iolo.lol#5](https://github.com/iolo-lol/iolo.lol/issues/5);
+roadmap/planning authority updated by [iolo-lol/engine#8](https://github.com/iolo-lol/engine/issues/8)
 
 This document defines the durable boundary between the product repository and
-the engine repository, who owns which contracts, the direction dependencies
-may flow, where ADRs live, how scheduled Agent execution composes, and how
-cross-repo issue references are written.
+the engine repository, who owns which contracts, where roadmap/planning
+authority lives, the direction dependencies may flow, where ADRs live, how
+scheduled Agent execution composes, and how cross-repo issue references are
+written.
+
+## Roadmap and planning authority
+
+`iolo-lol/engine` is the project control plane: product roadmap, milestones,
+architecture decisions, execution issues, private operational logic, and
+cross-repo implementation coordination live there. `iolo-lol/iolo.lol` is the
+public presentation/distribution surface: the static site, read-only
+generated API/feed/sitemap artifacts, and public schemas or generated data
+required by that surface. It is not the project-management or roadmap
+authority.
+
+- New product/milestone issues are created in `engine` even when
+  implementation requires a PR in the public frontend repository.
+- Public-repo issues are reserved for genuinely public-repository-local
+  concerns when there is a concrete reason to expose them there; they are not
+  the default planning surface.
+- Engine issues reference frontend implementation PRs (for example
+  `iolo-lol/iolo.lol#<n>` in the issue record) without duplicating issue
+  state; the engine issue remains the roadmap record, and the PR is the
+  delivery.
+- No duplicate roadmap/status source is introduced in this repository.
+  Historical milestone reassessments under `docs/roadmap/` are point-in-time
+  records, not live roadmap state.
 
 ## The boundary
 
@@ -14,8 +39,8 @@ frontend/backend layering.
 
 | Repository | Visibility | Responsibility |
 | --- | --- | --- |
-| `iolo-lol/iolo.lol` | Public product surface | Product, public contracts, web/API presentation, community-facing surfaces |
-| `iolo-lol/engine` | Private | Ingestion, automation, editorial logic, operational implementation |
+| `iolo-lol/iolo.lol` | Public product surface | Public presentation/distribution: public contracts, web/API presentation, community-facing surfaces. Not the roadmap or planning authority |
+| `iolo-lol/engine` | Private | Roadmap/architecture control plane, ingestion, automation, editorial logic, operational implementation |
 
 A component belongs to the engine when it is operational implementation or
 processes private data. A component belongs to the product repository when it
@@ -99,7 +124,8 @@ See [ADR-0006: Composable scheduled Agent execution](adr/0006-composable-agent-e
   `owner/repo#number`, for example `iolo-lol/engine#1`.
 - Unqualified `#number` references an issue in the current repository.
 - Parent/sub-issue links and `Depends on:` / `Related roadmap:` lines use the
-  same qualified form so the roadmap stays readable from either repository.
+  same qualified form so the roadmap record in engine stays readable from
+  either repository.
 
 ## Related authorities
 
@@ -109,4 +135,5 @@ See [ADR-0006: Composable scheduled Agent execution](adr/0006-composable-agent-e
   [ADR-0006: Composable scheduled Agent execution](adr/0006-composable-agent-execution.md)
 * [Agent Team contract](agent-team.md)
 * [Repository routing guide](../AGENTS.md)
+* [Engine control-plane decision iolo-lol/engine#8](https://github.com/iolo-lol/engine/issues/8)
 * [GitHub issue iolo.lol#1](https://github.com/iolo-lol/iolo.lol/issues/1) and [#5](https://github.com/iolo-lol/iolo.lol/issues/5)

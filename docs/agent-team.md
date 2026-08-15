@@ -4,8 +4,9 @@ Status: active repository contract for [iolo.lol#4](https://github.com/iolo-lol/
 
 This contract coordinates PM, Architect, Engineer, and QA work through durable
 repository state. It does not select or require a model, vendor, harness, or
-orchestration service. GitHub issues remain the project roadmap and product
-record; this document defines how roles use that record.
+orchestration service. The project roadmap and product record live in
+`iolo-lol/engine` GitHub issues; this document defines how roles use that
+record. Public-repo issues cover only public-repository-local concerns.
 
 The same model applies to the `iolo-lol/engine` repository. Contract ownership
 between the product and engine repositories is defined in

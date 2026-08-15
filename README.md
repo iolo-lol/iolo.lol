@@ -1,8 +1,10 @@
 # iolo.lol
 
-Product repository for iolo.lol: public contracts, web/API presentation, and
-community-facing surfaces. Private ingestion, automation, and editorial
-implementation live in the separate `iolo-lol/engine` repository.
+Public presentation and distribution repository for iolo.lol: public
+contracts, web/API presentation, and community-facing surfaces. The project
+roadmap, milestone planning, and architecture decisions live in the private
+`iolo-lol/engine` repository; this repository is not the planning or roadmap
+authority.
 
 - **Signals**: structured, continuously updated information.
 - **Oddities**: short-lived or experimental interactive content.

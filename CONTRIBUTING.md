@@ -14,7 +14,9 @@ contribution under the same terms.
 1. Read the [repository routing guide](AGENTS.md).
 2. For multi-role work, read the [Agent Team contract](docs/agent-team.md).
 3. Find the active issue that describes the work and its acceptance criteria.
-   GitHub issues are the roadmap; do not invent scope outside them.
+   The project roadmap lives in `iolo-lol/engine` GitHub issues; issues in
+   this repository cover public-repository-local concerns. Do not invent scope
+   outside the active issue.
 
 ## Local setup and validation
 
