@@ -1,0 +1,205 @@
+{
+  "$id": "https://iolo.lol/contracts/model-offers/v1",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Exact-model provider-offer projection",
+  "description": "Deterministic derived view grouping canonical Signals by exact model identity: each group carries the model developer and every authoritative provider offer with its conditional prices and provenance. Exact equivalence is recorded only from authoritative source identifiers (never name/family/Agent inference); single-offer models appear as ungrouped single-offer groups. Canonical Signals remain the sole pricing truth source — this document is computed from canonical data plus product-owned identity metadata, never a second datastore.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "groups"],
+  "properties": {
+    "schemaVersion": {
+      "const": 1,
+      "description": "Offers contract major version; a breaking change is a new contract version."
+    },
+    "groups": {
+      "type": "array",
+      "minItems": 1,
+      "description": "One group per exact model identity, sorted by identity id.",
+      "items": { "$ref": "#/$defs/group" }
+    }
+  },
+  "$defs": {
+    "group": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["identityId", "name", "developer", "offers"],
+      "properties": {
+        "identityId": {
+          "type": "string",
+          "pattern": "^[a-z0-9]+([.-][a-z0-9]+)*$",
+          "description": "Stable exact-model identity id, e.g. deepseek-v4-flash."
+        },
+        "name": {
+          "type": "string",
+          "description": "Exact model display name, e.g. 'DeepSeek V4 Flash'."
+        },
+        "developer": {
+          "type": "string",
+          "description": "Model developer; differs from the provider for hosted models."
+        },
+        "offers": {
+          "type": "array",
+          "minItems": 1,
+          "description": "Authoritative provider offers for this exact model, in identity-mapping order.",
+          "items": { "$ref": "#/$defs/offer" }
+        }
+      }
+    },
+    "offer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["signalId", "provider", "offer", "source", "observedAt", "dimensions"],
+      "properties": {
+        "signalId": {
+          "type": "string",
+          "pattern": "^[a-z0-9]+([.-][a-z0-9]+)*$",
+          "description": "The canonical Signal that prices this offer."
+        },
+        "provider": {
+          "type": "string",
+          "description": "API provider/host, e.g. 'DeepSeek' or 'DeepInfra'."
+        },
+        "offer": {
+          "type": "string",
+          "description": "Provider-specific offer label, e.g. 'DeepSeek first-party API'."
+        },
+        "source": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["url", "fetchedAt", "contentHash"],
+          "properties": {
+            "url": { "type": "string", "format": "uri" },
+            "fetchedAt": { "type": "string", "format": "date-time" },
+            "contentHash": {
+              "type": "string",
+              "pattern": "^sha256:[a-f0-9]{64}$"
+            }
+          }
+        },
+        "observedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "When the offer's canonical Signal was observed."
+        },
+        "dimensions": {
+          "type": "array",
+          "minItems": 1,
+          "description": "Pricing dimensions of this offer, sorted by name; conditional statements preserved verbatim.",
+          "items": { "$ref": "#/$defs/dimension" }
+        }
+      }
+    },
+    "dimension": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "label", "unit", "currency", "statements"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[a-z0-9-]+$",
+          "description": "Stable pricing dimension name."
+        },
+        "label": { "type": "string" },
+        "unit": { "const": "per-1m-tokens" },
+        "currency": { "const": "USD" },
+        "statements": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["value", "note"],
+            "properties": {
+              "value": { "type": "number", "exclusiveMinimum": 0 },
+              "note": { "type": "string" }
+            }
+          }
+        }
+      }
+    }
+  },
+  "examples": [
+    {
+      "schemaVersion": 1,
+      "groups": [
+        {
+          "identityId": "deepseek-v4-flash",
+          "name": "DeepSeek V4 Flash",
+          "developer": "DeepSeek",
+          "offers": [
+            {
+              "signalId": "deepseek-v4-flash-usage-rates",
+              "provider": "DeepSeek",
+              "offer": "DeepSeek first-party API",
+              "source": {
+                "url": "https://api-docs.deepseek.com/quick_start/pricing/",
+                "fetchedAt": "2026-08-14T04:05:24.500Z",
+                "contentHash": "sha256:1111111111111111111111111111111111111111111111111111111111111111"
+              },
+              "observedAt": "2026-08-14T04:05:24.543Z",
+              "dimensions": [
+                {
+                  "name": "input-price-cache-hit",
+                  "label": "Input price (cache hit)",
+                  "unit": "per-1m-tokens",
+                  "currency": "USD",
+                  "statements": [
+                    { "value": 0.0028, "note": "through 16:00 UTC on August 16, 2026" },
+                    { "value": 0.007, "note": "off-peak from 16:00 UTC on August 16, 2026" }
+                  ]
+                }
+              ]
+            },
+            {
+              "signalId": "deepinfra-deepseek-v4-flash-usage-rates",
+              "provider": "DeepInfra",
+              "offer": "DeepInfra hosted",
+              "source": {
+                "url": "https://deepinfra.com/pricing",
+                "fetchedAt": "2026-08-15T12:18:02.371Z",
+                "contentHash": "sha256:2222222222222222222222222222222222222222222222222222222222222222"
+              },
+              "observedAt": "2026-08-16T00:00:00Z",
+              "dimensions": [
+                {
+                  "name": "input-price",
+                  "label": "Input price",
+                  "unit": "per-1m-tokens",
+                  "currency": "USD",
+                  "statements": [{ "value": 0.09, "note": "" }]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "identityId": "gpt-5.6-sol",
+          "name": "GPT-5.6 Sol",
+          "developer": "OpenAI",
+          "offers": [
+            {
+              "signalId": "openai-gpt-5.6-sol-usage-rates",
+              "provider": "OpenAI",
+              "offer": "OpenAI API",
+              "source": {
+                "url": "https://developers.openai.com/api/docs/pricing",
+                "fetchedAt": "2026-08-15T12:18:02.371Z",
+                "contentHash": "sha256:3333333333333333333333333333333333333333333333333333333333333333"
+              },
+              "observedAt": "2026-08-15T12:25:19.905Z",
+              "dimensions": [
+                {
+                  "name": "input-price",
+                  "label": "Input price",
+                  "unit": "per-1m-tokens",
+                  "currency": "USD",
+                  "statements": [{ "value": 5, "note": "" }]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
