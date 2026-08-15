@@ -162,6 +162,47 @@ describe("web surface", () => {
     expect(html).toContain("Gemini 3.7 Flash usage rates");
   });
 
+  it("changes page separates upcoming from observed and keeps conditions visible", async () => {
+    const res = await fetch(`${baseUrl}/changes/`);
+    expect(res.status).toBe(200);
+    const html = await res.text();
+    expect(html).toContain("Pricing changes");
+    expect(html).toContain("Upcoming changes");
+    expect(html).toContain("Observed changes");
+    // fixture has one snapshot -> no observed records
+    expect(html).toContain("No observed pricing changes yet");
+    // the future-effective statement becomes an upcoming item with
+    // provider/model, before/after values, note, and drill-down links
+    expect(html).toContain("Gemini 3.7 Flash usage rates");
+    expect(html).toContain("Input price");
+    expect(html).toContain("0.75 USD per 1M tokens");
+    expect(html).toContain("1.5 USD per 1M tokens");
+    expect(html).toContain("starting January 1, 2027");
+    expect(html).toContain("/signals/gemini-3.7-flash-usage-rates/");
+    expect(html).toContain("/api/v1/changes/index.json");
+  });
+
+  it("changes API returns the projection document", async () => {
+    const res = await fetch(`${baseUrl}/api/v1/changes/index.json`);
+    expect(res.status).toBe(200);
+    const doc = (await res.json()) as {
+      schemaVersion: number;
+      records: {
+        kind: string;
+        signalId: string;
+        dimension: { name: string; before: unknown[]; after: unknown[] };
+      }[];
+    };
+    expect(doc.schemaVersion).toBe(1);
+    expect(doc.records).toHaveLength(2); // input + output upcoming
+    for (const record of doc.records) {
+      expect(record.kind).toBe("upcoming");
+      expect(record.signalId).toBe("gemini-3.7-flash-usage-rates");
+      expect(record.dimension.before).toHaveLength(1);
+      expect(record.dimension.after).toHaveLength(1);
+    }
+  });
+
   it("comparison page renders all providers with conditional prices visible", async () => {
     const res = await fetch(`${baseUrl}/compare/`);
     expect(res.status).toBe(200);
