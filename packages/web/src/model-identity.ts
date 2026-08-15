@@ -172,6 +172,54 @@ export const MODEL_IDENTITIES: ModelIdentityMeta[] = [
       },
     ],
   },
+  {
+    id: "sonar",
+    name: "Sonar",
+    developer: "Perplexity",
+    offers: [
+      {
+        signalId: "perplexity-sonar-usage-rates",
+        provider: "Perplexity",
+        offer: "Perplexity API",
+      },
+    ],
+  },
+  {
+    id: "sonar-pro",
+    name: "Sonar Pro",
+    developer: "Perplexity",
+    offers: [
+      {
+        signalId: "perplexity-sonar-pro-usage-rates",
+        provider: "Perplexity",
+        offer: "Perplexity API",
+      },
+    ],
+  },
+  {
+    id: "sonar-reasoning-pro",
+    name: "Sonar Reasoning Pro",
+    developer: "Perplexity",
+    offers: [
+      {
+        signalId: "perplexity-sonar-reasoning-pro-usage-rates",
+        provider: "Perplexity",
+        offer: "Perplexity API",
+      },
+    ],
+  },
+  {
+    id: "sonar-deep-research",
+    name: "Sonar Deep Research",
+    developer: "Perplexity",
+    offers: [
+      {
+        signalId: "perplexity-sonar-deep-research-usage-rates",
+        provider: "Perplexity",
+        offer: "Perplexity API",
+      },
+    ],
+  },
 ];
 
 const IDENTITY_BY_SIGNAL: Record<string, ModelIdentityMeta> = Object.fromEntries(

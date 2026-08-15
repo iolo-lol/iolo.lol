@@ -26,8 +26,8 @@ describe("model-offers projection (real canonical Signals)", () => {
   it("groups every canonical Signal into exactly one identity", () => {
     const doc = offersFromSignalsDir(DEFAULT_SIGNALS_DIR);
     const totalOffers = doc.groups.reduce((n, g) => n + g.offers.length, 0);
-    // twelve canonical Signals -> twelve offers across the groups
-    expect(totalOffers).toBe(12);
+    // sixteen canonical Signals -> sixteen offers across the groups
+    expect(totalOffers).toBe(16);
     const bySignal = new Map(
       doc.groups.flatMap((g) => g.offers.map((o) => [o.signalId, g])),
     );

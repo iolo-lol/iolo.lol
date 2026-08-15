@@ -174,6 +174,52 @@ export const SIGNAL_META: Record<string, SignalMeta> = {
       "output-price": "Output price",
     },
   },
+  "perplexity-sonar-usage-rates": {
+    title: "Sonar usage rates",
+    provider: "Perplexity",
+    model: "Sonar",
+    description:
+      "Usage rates for the Sonar model from the Perplexity API, per 1 million tokens.",
+    valueLabels: {
+      "input-price": "Input price",
+      "output-price": "Output price",
+    },
+  },
+  "perplexity-sonar-pro-usage-rates": {
+    title: "Sonar Pro usage rates",
+    provider: "Perplexity",
+    model: "Sonar Pro",
+    description:
+      "Usage rates for the Sonar Pro model from the Perplexity API, per 1 million tokens.",
+    valueLabels: {
+      "input-price": "Input price",
+      "output-price": "Output price",
+    },
+  },
+  "perplexity-sonar-reasoning-pro-usage-rates": {
+    title: "Sonar Reasoning Pro usage rates",
+    provider: "Perplexity",
+    model: "Sonar Reasoning Pro",
+    description:
+      "Usage rates for the Sonar Reasoning Pro model from the Perplexity API, per 1 million tokens.",
+    valueLabels: {
+      "input-price": "Input price",
+      "output-price": "Output price",
+    },
+  },
+  "perplexity-sonar-deep-research-usage-rates": {
+    title: "Sonar Deep Research usage rates",
+    provider: "Perplexity",
+    model: "Sonar Deep Research",
+    description:
+      "Usage rates for the Sonar Deep Research model from the Perplexity API, per 1 million tokens.",
+    valueLabels: {
+      "input-price": "Input price",
+      "output-price": "Output price",
+      "citation-price": "Citation tokens",
+      "reasoning-price": "Reasoning tokens",
+    },
+  },
 };
 
 export function signalMeta(signalId: string): SignalMeta {

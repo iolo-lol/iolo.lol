@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 1,
+  "signalId": "perplexity-sonar-pro-usage-rates",
+  "entries": [
+    {
+      "publishedAt": "2026-08-15T19:08:28.693Z",
+      "result": {
+        "schemaVersion": 1,
+        "signalId": "perplexity-sonar-pro-usage-rates",
+        "observedAt": "2026-08-15T19:08:28.659Z",
+        "source": {
+          "url": "https://docs.perplexity.ai/docs/getting-started/pricing",
+          "fetchedAt": "2026-08-15T18:52:52Z",
+          "contentHash": "sha256:b47747760744cab5f0a77009a0342fb3f5b9dd03dcbb6c1d38f603b9aed45e6f"
+        },
+        "values": [
+          {
+            "name": "input-price",
+            "unit": "per-1m-tokens",
+            "currency": "USD",
+            "statements": [
+              {
+                "value": 3,
+                "note": ""
+              }
+            ]
+          },
+          {
+            "name": "output-price",
+            "unit": "per-1m-tokens",
+            "currency": "USD",
+            "statements": [
+              {
+                "value": 15,
+                "note": ""
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}
