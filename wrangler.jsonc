@@ -1,0 +1,17 @@
+{
+  // Cloudflare Workers Static Assets deployment for the iolo.lol site.
+  // Assets-only: no Worker script ("main") is declared, so static asset
+  // delivery does not require request-time Worker logic (ADR-0005).
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "iolo-lol",
+  "compatibility_date": "2026-08-15",
+  "preview_urls": true,
+  "assets": {
+    "directory": "./packages/web/site",
+    // Serve directory index.html for trailing-slash requests and redirect
+    // non-slash forms to the canonical trailing-slash URLs.
+    "html_handling": "auto-trailing-slash",
+    // Serve the generated 404.html (404 status) for unmatched paths.
+    "not_found_handling": "404-page"
+  }
+}

@@ -1,2 +1,9 @@
 packages:
   - packages/*
+
+# Allow install scripts for wrangler's native dependencies (esbuild and
+# workerd); required for `wrangler deploy`/`dev` to function and for CI's
+# `pnpm install --frozen-lockfile` to pass with them installed (pnpm 11).
+allowBuilds:
+  esbuild: true
+  workerd: true

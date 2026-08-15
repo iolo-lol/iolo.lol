@@ -1,3 +1,7 @@
+# TEMPORARY FALLBACK during cutover to Cloudflare Workers Static Assets
+# (iolo.lol#20, ADR-0005). Remove this workflow and the Pages deployment once
+# QA verifies the Cloudflare production surface and iolo.lol DNS serves the
+# canonical domain from Cloudflare.
 name: Pages
 
 on:

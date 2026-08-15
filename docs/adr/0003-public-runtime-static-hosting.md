@@ -1,6 +1,6 @@
 # ADR-0003: Public runtime — static hosting of canonical signal state
 
-- Status: Accepted
+- Status: Superseded by [ADR-0005](0005-workers-static-assets.md)
 - Date: 2026-08-14
 - Related: [Issue #12](https://github.com/iolo-lol/iolo.lol/issues/12),
   [Issue #13](https://github.com/iolo-lol/iolo.lol/issues/13),

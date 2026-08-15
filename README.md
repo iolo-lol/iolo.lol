@@ -14,14 +14,16 @@ A pnpm monorepo:
 | Package | Purpose |
 | --- | --- |
 | `packages/contracts` | Shared public contracts (JSON Schema) and validation machinery |
-| `packages/web` | Read API + web surface; static-site generator for GitHub Pages |
+| `packages/web` | Read API + web surface; static-site generator for Cloudflare Workers Static Assets |
 
 ## Live surface
 
 The human-facing website is published at the canonical
-<https://iolo.lol/> (GitHub Pages project URL
-<https://iolo-lol.github.io/iolo.lol/> is the implementation/deployment
-detail). Pages:
+<https://iolo.lol/> through Cloudflare Workers Static Assets
+(`wrangler.jsonc` + Workers Builds from this repository; see ADR-0005).
+During cutover the GitHub Pages project URL
+<https://iolo-lol.github.io/iolo.lol/> remains a temporary fallback.
+Pages:
 
 - `/` — home: what iolo.lol is, what Signals are, current Signals, recent changes
 - `/signals/` — Signals index with human-readable names
@@ -51,6 +53,15 @@ pnpm install
 pnpm check   # typecheck + contract/schema validation tests
 pnpm --filter @iolo.lol/web generate   # render the static site into packages/web/site
 ```
+
+## Deployment
+
+The site deploys to Cloudflare Workers Static Assets from this repository
+(`wrangler.jsonc`; assets-only, no Worker script). Workers Builds runs
+`pnpm deploy` (generate + `wrangler deploy`) on push to `main`;
+non-production branches produce preview versions. The same command performs a
+manual deploy after authenticating with `wrangler login`. Validate a
+deployment without publishing with `npx wrangler deploy --dry-run`.
 
 ## Contributing
 
