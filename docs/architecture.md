@@ -4,7 +4,8 @@ Status: live contract for [iolo.lol#5](https://github.com/iolo-lol/iolo.lol/issu
 
 This document defines the durable boundary between the product repository and
 the engine repository, who owns which contracts, the direction dependencies
-may flow, where ADRs live, and how cross-repo issue references are written.
+may flow, where ADRs live, how scheduled Agent execution composes, and how
+cross-repo issue references are written.
 
 ## The boundary
 
@@ -41,6 +42,48 @@ contracts must not require private engine implementation details.
 - The engine may run independently of the product repo's presentation layer,
   but its external-facing outputs must conform to product-owned contracts.
 
+## Scheduled Agent execution
+
+Recurring automation is a composition, not a fixed runtime. The durable model
+is:
+
+```text
+Schedule -> Agent Runner -> Job -> Tools -> Sink
+```
+
+- **Schedule** decides when work runs.
+- **Agent Runner** provides reasoning/routing when the job needs it.
+- **Job** is the durable repository-owned specification of the work.
+- **Tools** perform deterministic fetch/extract/validate/update operations.
+- **Sink** is the governed API/Git/data destination.
+
+`Job`, `Tools`, and `Sink` are durable project assets. `Schedule` and
+`Agent Runner` are replaceable execution profiles unless an issue explicitly
+standardizes one.
+
+Valid compositions include Agent-app-native scheduling that sends a short
+prompt before running repository tooling, host cron/systemd/container launchers
+that invoke an Agent CLI, scheduled GitHub Actions for suitable work, and
+Cloudflare Cron for lightweight periodic HTTP/check/trigger work. Manual runs
+use the same job contract. The architecture does not privilege one direction:
+`Agent scheduler -> shell/tool` and `host scheduler -> Agent CLI -> tool` are
+both valid.
+
+Choose an execution profile using correctness, privacy, observability,
+maintenance, and recurring cost. Public GitHub-hosted execution may be useful
+when the work genuinely belongs in a public repository; private logic or data
+must not be moved public merely to reduce runtime cost. Cloud runtimes must
+justify cadence and compute cost rather than becoming the default for every
+periodic task.
+
+Words such as `automatic`, `scheduled`, `daily`, `hourly`, `periodic`, and
+`recurring` describe behavior/cadence only. They do not select GitHub Actions,
+Cloudflare Cron, an OS scheduler, a particular Agent app, or any other runtime.
+Scheduled prompts should normally be short invocations that resolve durable
+job/tool definitions from the repository instead of duplicating the job spec.
+
+See [ADR-0006: Composable scheduled Agent execution](adr/0006-composable-agent-execution.md).
+
 ## ADR ownership
 
 - ADRs that affect public contracts, the product surface, or the cross-repo
@@ -61,7 +104,9 @@ contracts must not require private engine implementation details.
 ## Related authorities
 
 * [Architecture decision records](adr/README.md), especially
-  [ADR-0001: Cross-repo boundary and contract ownership](adr/0001-cross-repo-boundary.md)
+  [ADR-0001: Cross-repo boundary and contract ownership](adr/0001-cross-repo-boundary.md),
+  [ADR-0002: Canonical signal state and publication boundary](adr/0002-canonical-state-and-publication-boundary.md), and
+  [ADR-0006: Composable scheduled Agent execution](adr/0006-composable-agent-execution.md)
 * [Agent Team contract](agent-team.md)
 * [Repository routing guide](../AGENTS.md)
 * [GitHub issue iolo.lol#1](https://github.com/iolo-lol/iolo.lol/issues/1) and [#5](https://github.com/iolo-lol/iolo.lol/issues/5)
