@@ -107,10 +107,12 @@ export function generateSitemap(
     { loc: `${siteBase}/`, lastmod: "" },
     { loc: `${siteBase}/signals/`, lastmod: "" },
     { loc: `${siteBase}/compare/`, lastmod: "" },
+    { loc: `${siteBase}/offers/`, lastmod: "" },
     { loc: `${siteBase}/changes/`, lastmod: "" },
     { loc: `${siteBase}/api/v1/signals.json`, lastmod: "" },
     { loc: `${siteBase}/api/v1/comparisons/index.json`, lastmod: "" },
     { loc: `${siteBase}/api/v1/changes/index.json`, lastmod: "" },
+    { loc: `${siteBase}/api/v1/model-offers/index.json`, lastmod: "" },
   ];
   for (const id of signalIds(signalsDir)) {
     urls.push({ loc: `${siteBase}/signals/${id}/`, lastmod: "" });

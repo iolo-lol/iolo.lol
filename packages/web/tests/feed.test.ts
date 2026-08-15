@@ -59,11 +59,15 @@ describe("sitemap", () => {
     expect(sitemap).toContain("<loc>https://iolo.lol/</loc>");
     expect(sitemap).toContain("<loc>https://iolo.lol/signals/</loc>");
     expect(sitemap).toContain("<loc>https://iolo.lol/changes/</loc>");
+    expect(sitemap).toContain("<loc>https://iolo.lol/offers/</loc>");
     expect(sitemap).toContain(
       "<loc>https://iolo.lol/api/v1/signals.json</loc>",
     );
     expect(sitemap).toContain(
       "<loc>https://iolo.lol/api/v1/changes/index.json</loc>",
+    );
+    expect(sitemap).toContain(
+      "<loc>https://iolo.lol/api/v1/model-offers/index.json</loc>",
     );
     expect(sitemap).toContain(
       "<loc>https://iolo.lol/signals/gemini-3.7-flash-usage-rates/</loc>",

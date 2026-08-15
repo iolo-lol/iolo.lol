@@ -25,10 +25,11 @@ const addFormats = require("ajv-formats").default as FormatsPlugin;
  */
 
 describe("comparison projection (from real canonical Signals)", () => {
-  it("projects all eleven canonical Signals with identity and provenance", () => {
+  it("projects all twelve canonical Signals with identity and provenance", () => {
     const doc = comparisonFromSignalsDir(DEFAULT_SIGNALS_DIR);
     expect(doc.entries.map((e) => e.signalId)).toEqual([
       "cohere-command-r-plus-08-2024-usage-rates",
+      "deepinfra-deepseek-v4-flash-usage-rates",
       "deepinfra-deepseek-v4-pro-usage-rates",
       "deepinfra-kimi-k3-usage-rates",
       "deepinfra-qwen3.8-max-usage-rates",

@@ -36,6 +36,7 @@ describe("static site generator", () => {
       "index.html",
       "signals/index.html",
       "compare/index.html",
+      "offers/index.html",
       "changes/index.html",
       "404.html",
       ...ids.flatMap((id) => [
@@ -45,6 +46,7 @@ describe("static site generator", () => {
       "api/v1/signals.json",
       "api/v1/comparisons/index.json",
       "api/v1/changes/index.json",
+      "api/v1/model-offers/index.json",
       "feed.xml",
       "sitemap.xml",
       ...ids.flatMap((id) => [
@@ -221,6 +223,39 @@ describe("static site generator", () => {
     expect(artifact.records.every((r) => r.kind === "upcoming")).toBe(true);
   });
 
+  it("renders the model-offers page and artifact from the shared projection", () => {
+    const outDir = mkdtempSync(path.join(tmpdir(), "iolo-static-"));
+    generateSite(DEFAULT_SIGNALS_DIR, outDir);
+
+    const page = readFileSync(path.join(outDir, "offers/index.html"), "utf8");
+    expect(page).toContain("Model offers");
+    // the DeepSeek V4 Flash group shows both provider offers with attribution
+    expect(page).toContain("DeepSeek V4 Flash");
+    expect(page).toContain("developer: DeepSeek");
+    expect(page).toContain("DeepSeek first-party API");
+    expect(page).toContain("DeepInfra hosted");
+    expect(page).toContain("exact-model comparison");
+    expect(page).toContain("api-docs.deepseek.com/quick_start/pricing/");
+    expect(page).toContain("deepinfra.com/pricing");
+    // single-offer models stay visible (OpenAI family)
+    expect(page).toContain("GPT-5.6 Sol");
+    expect(page).toContain("GPT-5.6 Terra");
+    expect(page).toContain("developer: OpenAI");
+
+    // the static artifact is exactly the shared projection
+    const artifact = JSON.parse(
+      readFileSync(path.join(outDir, "api/v1/model-offers/index.json"), "utf8"),
+    ) as {
+      schemaVersion: number;
+      groups: { identityId: string; offers: unknown[] }[];
+    };
+    expect(artifact.schemaVersion).toBe(1);
+    const flash = artifact.groups.find(
+      (g) => g.identityId === "deepseek-v4-flash",
+    );
+    expect(flash?.offers).toHaveLength(2);
+  });
+
   it("skips history for a signal without one and renders from any data dir", () => {
     const signalsDir = mkdtempSync(path.join(tmpdir(), "iolo-signals-"));
     const outDir = mkdtempSync(path.join(tmpdir(), "iolo-static-"));
@@ -243,12 +278,14 @@ describe("static site generator", () => {
       "index.html",
       "signals/index.html",
       "compare/index.html",
+      "offers/index.html",
       "changes/index.html",
       "404.html",
       "signals/x/index.html",
       "api/v1/signals.json",
       "api/v1/comparisons/index.json",
       "api/v1/changes/index.json",
+      "api/v1/model-offers/index.json",
       "feed.xml",
       "sitemap.xml",
       "api/v1/signals/x.json",
