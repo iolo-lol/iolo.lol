@@ -52,6 +52,7 @@ Requires Node.js >= 24 and pnpm.
 pnpm install
 pnpm check   # typecheck + contract/schema validation tests
 pnpm --filter @iolo.lol/web generate   # render the static site into packages/web/site
+pnpm preview   # generate, then serve the static site locally via wrangler dev
 ```
 
 ## Deployment

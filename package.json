@@ -9,6 +9,7 @@
     "typecheck": "pnpm -r run typecheck",
     "test": "pnpm -r run test",
     "check": "pnpm typecheck && pnpm test",
+    "preview": "pnpm --filter @iolo.lol/web generate && wrangler dev",
     "deploy": "pnpm --filter @iolo.lol/web generate && wrangler deploy"
   },
   "devDependencies": {
