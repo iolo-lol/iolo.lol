@@ -9,6 +9,7 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
 import { generateSite } from "../src/static.js";
+import { comparisonFromSignalsDir } from "../src/compare.js";
 import { DEFAULT_SIGNALS_DIR, signalIds } from "../src/server.js";
 
 const REAL_RESULT = JSON.parse(
@@ -33,6 +34,7 @@ describe("static site generator", () => {
     const expected = [
       "index.html",
       "signals/index.html",
+      "compare/index.html",
       "changes/index.html",
       "404.html",
       ...ids.flatMap((id) => [
@@ -40,6 +42,7 @@ describe("static site generator", () => {
         `signals/${id}/history/index.html`,
       ]),
       "api/v1/signals.json",
+      "api/v1/comparisons/index.json",
       "feed.xml",
       "sitemap.xml",
       ...ids.flatMap((id) => [
@@ -121,10 +124,64 @@ describe("static site generator", () => {
     expect(sitemap).toContain(
       "<loc>https://iolo.lol/signals/gemini-3.7-flash-usage-rates/</loc>",
     );
+    expect(sitemap).toContain("<loc>https://iolo.lol/compare/</loc>");
+    expect(sitemap).toContain(
+      "<loc>https://iolo.lol/api/v1/comparisons/index.json</loc>",
+    );
     const feed = readFileSync(path.join(outDir, "feed.xml"), "utf8");
     expect(feed).toContain(
       "https://iolo.lol/signals/gemini-3.7-flash-usage-rates/history/",
     );
+  });
+
+  it("renders the comparison page and artifact from the shared projection", () => {
+    const outDir = mkdtempSync(path.join(tmpdir(), "iolo-static-"));
+    generateSite(DEFAULT_SIGNALS_DIR, outDir);
+
+    const page = readFileSync(path.join(outDir, "compare/index.html"), "utf8");
+    expect(page).toContain("Compare AI pricing");
+    for (const name of [
+      "Gemini 3.7 Flash",
+      "DeepSeek V4 Flash",
+      "Grok 4.6",
+      "Command R+ 08-2024",
+      "Qwen3.8-2.4T-A95B",
+    ]) {
+      expect(page).toContain(name);
+    }
+    // conditional prices are visible with their verbatim notes
+    expect(page).toContain("off-peak from 16:00 UTC on August 16, 2026");
+    expect(page).toContain("through December 31, 2026.");
+    expect(page).toContain("starting January 1, 2027.");
+    expect(page).toContain("details &amp; source");
+
+    // the static artifact is exactly the shared projection
+    const artifact = JSON.parse(
+      readFileSync(
+        path.join(outDir, "api/v1/comparisons/index.json"),
+        "utf8",
+      ),
+    );
+    expect(artifact).toEqual(comparisonFromSignalsDir(DEFAULT_SIGNALS_DIR));
+  });
+
+  it("regenerates byte-identical comparison artifacts across runs", () => {
+    const first = mkdtempSync(path.join(tmpdir(), "iolo-static-"));
+    const second = mkdtempSync(path.join(tmpdir(), "iolo-static-"));
+    generateSite(DEFAULT_SIGNALS_DIR, first);
+    generateSite(DEFAULT_SIGNALS_DIR, second);
+    const a = readFileSync(
+      path.join(first, "api/v1/comparisons/index.json"),
+      "utf8",
+    );
+    const b = readFileSync(
+      path.join(second, "api/v1/comparisons/index.json"),
+      "utf8",
+    );
+    expect(a).toBe(b);
+    const pageA = readFileSync(path.join(first, "compare/index.html"), "utf8");
+    const pageB = readFileSync(path.join(second, "compare/index.html"), "utf8");
+    expect(pageA).toBe(pageB);
   });
 
   it("skips history for a signal without one and renders from any data dir", () => {
@@ -148,10 +205,12 @@ describe("static site generator", () => {
     expect(files).toEqual([
       "index.html",
       "signals/index.html",
+      "compare/index.html",
       "changes/index.html",
       "404.html",
       "signals/x/index.html",
       "api/v1/signals.json",
+      "api/v1/comparisons/index.json",
       "feed.xml",
       "sitemap.xml",
       "api/v1/signals/x.json",
