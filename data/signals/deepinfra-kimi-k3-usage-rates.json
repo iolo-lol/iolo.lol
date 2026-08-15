@@ -1,0 +1,45 @@
+{
+  "schemaVersion": 1,
+  "signalId": "deepinfra-kimi-k3-usage-rates",
+  "observedAt": "2026-08-15T12:25:21.033Z",
+  "source": {
+    "url": "https://deepinfra.com/pricing",
+    "fetchedAt": "2026-08-15T12:18:02.371Z",
+    "contentHash": "sha256:d8c69b68339e1fd766a5832ef405ea76d26291f7065a32b108de3f8e210cebd4"
+  },
+  "values": [
+    {
+      "name": "input-price",
+      "unit": "per-1m-tokens",
+      "currency": "USD",
+      "statements": [
+        {
+          "value": 2.85,
+          "note": ""
+        }
+      ]
+    },
+    {
+      "name": "input-price-cache-hit",
+      "unit": "per-1m-tokens",
+      "currency": "USD",
+      "statements": [
+        {
+          "value": 0.285,
+          "note": "cached"
+        }
+      ]
+    },
+    {
+      "name": "output-price",
+      "unit": "per-1m-tokens",
+      "currency": "USD",
+      "statements": [
+        {
+          "value": 14.25,
+          "note": ""
+        }
+      ]
+    }
+  ]
+}

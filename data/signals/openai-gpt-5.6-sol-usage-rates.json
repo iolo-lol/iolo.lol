@@ -1,0 +1,100 @@
+{
+  "schemaVersion": 1,
+  "signalId": "openai-gpt-5.6-sol-usage-rates",
+  "observedAt": "2026-08-15T12:25:19.905Z",
+  "source": {
+    "url": "https://developers.openai.com/api/docs/pricing",
+    "fetchedAt": "2026-08-15T12:18:02.371Z",
+    "contentHash": "sha256:14a10c59cef6ce02dc772f0a2f6665767410bc213d60327c1775b153869c5f90"
+  },
+  "values": [
+    {
+      "name": "input-price",
+      "unit": "per-1m-tokens",
+      "currency": "USD",
+      "statements": [
+        {
+          "value": 5,
+          "note": ""
+        }
+      ]
+    },
+    {
+      "name": "input-price-cache-hit",
+      "unit": "per-1m-tokens",
+      "currency": "USD",
+      "statements": [
+        {
+          "value": 0.5,
+          "note": ""
+        }
+      ]
+    },
+    {
+      "name": "cache-writes",
+      "unit": "per-1m-tokens",
+      "currency": "USD",
+      "statements": [
+        {
+          "value": 6.25,
+          "note": ""
+        }
+      ]
+    },
+    {
+      "name": "output-price",
+      "unit": "per-1m-tokens",
+      "currency": "USD",
+      "statements": [
+        {
+          "value": 30,
+          "note": ""
+        }
+      ]
+    },
+    {
+      "name": "input-price-long-context",
+      "unit": "per-1m-tokens",
+      "currency": "USD",
+      "statements": [
+        {
+          "value": 10,
+          "note": ""
+        }
+      ]
+    },
+    {
+      "name": "input-price-long-context-cache-hit",
+      "unit": "per-1m-tokens",
+      "currency": "USD",
+      "statements": [
+        {
+          "value": 1,
+          "note": ""
+        }
+      ]
+    },
+    {
+      "name": "cache-writes-long-context",
+      "unit": "per-1m-tokens",
+      "currency": "USD",
+      "statements": [
+        {
+          "value": 12.5,
+          "note": ""
+        }
+      ]
+    },
+    {
+      "name": "output-price-long-context",
+      "unit": "per-1m-tokens",
+      "currency": "USD",
+      "statements": [
+        {
+          "value": 45,
+          "note": ""
+        }
+      ]
+    }
+  ]
+}
