@@ -12,12 +12,14 @@ import {
   renderCompare,
   renderHome,
   renderNotFound,
+  renderOffers,
   renderSignalDetail,
   renderSignalHistory,
   renderSignalsIndex,
 } from "./pages.js";
 import { comparisonFromSignalsDir } from "./compare.js";
 import { changesFromSignalsDir } from "./changes.js";
+import { offersFromSignalsDir } from "./model-offers.js";
 import { DEFAULT_SITE_BASE, generateFeed, generateSitemap } from "./feed.js";
 
 export const DEFAULT_OUTPUT_DIR = fileURLToPath(
@@ -56,6 +58,7 @@ export function generateSite(
     { html: "index.html", path: "index.html", render: () => renderHome(signalsDir) },
     { html: "signals/index.html", path: "signals/index.html", render: () => renderSignalsIndex(signalsDir) },
     { html: "compare/index.html", path: "compare/index.html", render: () => renderCompare(signalsDir) },
+    { html: "offers/index.html", path: "offers/index.html", render: () => renderOffers(signalsDir) },
     { html: "changes/index.html", path: "changes/index.html", render: () => renderChanges(signalsDir) },
     { html: "404.html", path: "404.html", render: () => renderNotFound() },
   ];
@@ -99,6 +102,13 @@ export function generateSite(
     changesFromSignalsDir(signalsDir),
   );
   written.push("api/v1/changes/index.json");
+
+  writeJson(
+    outDir,
+    path.join("api", "v1", "model-offers", "index.json"),
+    offersFromSignalsDir(signalsDir),
+  );
+  written.push("api/v1/model-offers/index.json");
 
   writeText(outDir, path.join("feed.xml"), generateFeed(signalsDir, siteBase));
   written.push("feed.xml");

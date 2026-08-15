@@ -211,6 +211,31 @@ describe("web surface", () => {
     }
   });
 
+  it("model-offers page shows exact-model groups with provider-vs-developer attribution", async () => {
+    const res = await fetch(`${baseUrl}/offers/`);
+    expect(res.status).toBe(200);
+    const html = await res.text();
+    expect(html).toContain("Model offers");
+    expect(html).toContain("Gemini 3.7 Flash");
+    expect(html).toContain("developer: Google");
+    expect(html).toContain("/api/v1/model-offers/index.json");
+  });
+
+  it("model-offers API returns the derived offers document", async () => {
+    const res = await fetch(`${baseUrl}/api/v1/model-offers/index.json`);
+    expect(res.status).toBe(200);
+    const doc = (await res.json()) as {
+      schemaVersion: number;
+      groups: { identityId: string; developer: string; offers: unknown[] }[];
+    };
+    expect(doc.schemaVersion).toBe(1);
+    // fixture has a single Gemini signal -> single-offer group
+    expect(doc.groups).toHaveLength(1);
+    expect(doc.groups[0]!.identityId).toBe("gemini-3.7-flash");
+    expect(doc.groups[0]!.developer).toBe("Google");
+    expect(doc.groups[0]!.offers).toHaveLength(1);
+  });
+
   it("comparison page renders all providers with conditional prices visible", async () => {
     const res = await fetch(`${baseUrl}/compare/`);
     expect(res.status).toBe(200);

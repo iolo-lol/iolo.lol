@@ -17,6 +17,10 @@ import {
   changesFromSignalsDir,
   type ChangeRecord,
 } from "./changes.js";
+import {
+  offersFromSignalsDir,
+  type ModelOfferGroup,
+} from "./model-offers.js";
 import { loadHistory, loadSignal, signalIds, type HistoryEntry } from "./server.js";
 import { htmlEscape } from "./escape.js";
 
@@ -484,6 +488,15 @@ th.cmp-provider-col { min-width: 11.5rem; }
 }
 .change-source { color: var(--muted); font-size: 0.85rem; margin: 0.45rem 0 0; }
 .change-empty { color: var(--quiet); }
+
+/* Model offers page */
+.offer-block {
+  border-top: 1px solid var(--line);
+  margin-top: 0.85rem;
+  padding-top: 0.85rem;
+}
+.offer-block:first-of-type { border-top: none; margin-top: 0; padding-top: 0; }
+.offer-label { margin: 0.15rem 0 0.35rem; }
 </style>
 </head>
 <body>
@@ -492,6 +505,7 @@ th.cmp-provider-col { min-width: 11.5rem; }
 <span class="brand"><a href="/">iolo.lol<small>Signals</small></a></span>
 <a class="nav" href="/signals/">Signals</a>
 <a class="nav" href="/compare/">Compare</a>
+<a class="nav" href="/offers/">Model offers</a>
 <a class="nav" href="/changes/">Changes</a>
 <a class="nav" href="/feed.xml">Feed</a>
 </nav>
@@ -778,6 +792,76 @@ ${doc.entries
     description:
       "Compare the tracked AI usage rates side by side: all five providers, conditional pricing kept visible, with source and freshness for every value.",
     canonicalPath: "/compare/",
+    body,
+  });
+}
+
+function offerGroupHtml(group: ModelOfferGroup): string {
+  const multi = group.offers.length > 1;
+  return `<section class="card offer-group${multi ? " offer-group-multi" : ""}">
+<h3>${htmlEscape(group.name)}</h3>
+<p class="provider">developer: ${htmlEscape(group.developer)} · ${group.offers.length} provider offer${group.offers.length === 1 ? "" : "s"}${multi ? ' <span class="badge">exact-model comparison</span>' : ""}</p>
+${group.offers
+    .map((offer) => {
+      const offerBody = offer.dimensions
+        .map(
+          (d) => `<div class="cv">
+  <span class="value">${htmlEscape(
+    d.statements[0]
+      ? `${formatNumber(d.statements[0].value)} ${d.currency} ${unitLabel(d.unit)}`
+      : "",
+  )}</span>
+  <span class="qualifier">${htmlEscape(d.statements[0]?.note ?? "")}</span>
+</div>`,
+        )
+        .join("\n");
+      return `<div class="offer-block">
+<div class="provider-tag">${htmlEscape(offer.provider)}</div>
+<p class="offer-label"><strong>${htmlEscape(offer.offer)}</strong></p>
+<div class="current-values">${offerBody}</div>
+<p class="meta-line">Source: <a href="${htmlEscape(
+        offer.source.url,
+      )}">${htmlEscape(offer.source.url)}</a> (fetched <time datetime="${htmlEscape(
+        offer.source.fetchedAt,
+      )}">${htmlEscape(formatDateShort(offer.source.fetchedAt))}</time>) · <a href="/signals/${htmlEscape(
+        offer.signalId,
+      )}/">Signal details</a> · <a href="/signals/${htmlEscape(
+        offer.signalId,
+      )}/history/">History</a></p>
+</div>`;
+    })
+    .join("\n")}
+</section>`;
+}
+
+export function renderOffers(signalsDir: string): string {
+  const doc = offersFromSignalsDir(signalsDir);
+  if (doc.groups.length === 0) {
+    return layout({
+      title: "Model offers — iolo.lol",
+      description: "Authoritative provider offers for each exact model.",
+      canonicalPath: "/offers/",
+      body: "<h1>Model offers</h1><p>No Signals published yet.</p>",
+    });
+  }
+  const multiOffer = doc.groups.filter((g) => g.offers.length > 1);
+  const singleOffer = doc.groups.filter((g) => g.offers.length === 1);
+  const body = `<h1>Model offers</h1>
+<p class="lead">For each exact model, every authoritative API provider offer — the same model can be sold by more than one provider. Groups are derived from canonical Signal data plus product-owned identity metadata; exact equivalence is recorded only where authoritative sources name the same model, never inferred from similar names.</p>
+${multiOffer.length > 0 ? `<section>
+<h2 class="section-label">Models with multiple provider offers</h2>
+${multiOffer.map((g) => offerGroupHtml(g)).join("\n")}
+</section>` : ""}
+<section>
+<h2 class="section-label">All models</h2>
+${singleOffer.map((g) => offerGroupHtml(g)).join("\n")}
+</section>
+<p class="cmp-legend">Offer prices are USD per 1 million tokens, preserved verbatim from the canonical Signal behind each offer (conditional statements kept intact). The same projection is available machine-readable at <a href="/api/v1/model-offers/index.json">/api/v1/model-offers/index.json</a>.</p>`;
+  return layout({
+    title: "Model offers — iolo.lol",
+    description:
+      "Authoritative provider offers for each exact model: who develops it, who sells API access, and what each offer costs — with provenance.",
+    canonicalPath: "/offers/",
     body,
   });
 }

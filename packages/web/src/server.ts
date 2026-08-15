@@ -7,12 +7,14 @@ import {
   renderCompare,
   renderHome,
   renderNotFound,
+  renderOffers,
   renderSignalDetail,
   renderSignalHistory,
   renderSignalsIndex,
 } from "./pages.js";
 import { comparisonFromSignalsDir } from "./compare.js";
 import { changesFromSignalsDir } from "./changes.js";
+import { offersFromSignalsDir } from "./model-offers.js";
 import { generateFeed, generateSitemap } from "./feed.js";
 
 export const DEFAULT_SIGNALS_DIR = fileURLToPath(
@@ -142,6 +144,10 @@ export function createApp(signalsDir: string): Server {
       sendHtml(res, 200, renderCompare(signalsDir));
       return;
     }
+    if (pathname === "/offers/" || pathname === "/offers/index.html") {
+      sendHtml(res, 200, renderOffers(signalsDir));
+      return;
+    }
     if (pathname === "/feed.xml") {
       sendText(
         res,
@@ -192,6 +198,10 @@ export function createApp(signalsDir: string): Server {
     }
     if (pathname === "/api/v1/changes/index.json") {
       sendJson(res, 200, changesFromSignalsDir(signalsDir));
+      return;
+    }
+    if (pathname === "/api/v1/model-offers/index.json") {
+      sendJson(res, 200, offersFromSignalsDir(signalsDir));
       return;
     }
     if (pathname === "/api/v1/signals" || pathname === "/api/v1/signals.json") {

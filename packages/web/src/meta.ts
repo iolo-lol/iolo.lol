@@ -162,6 +162,18 @@ export const SIGNAL_META: Record<string, SignalMeta> = {
       "output-price": "Output price",
     },
   },
+  "deepinfra-deepseek-v4-flash-usage-rates": {
+    title: "DeepSeek-V4-Flash usage rates",
+    provider: "DeepInfra",
+    model: "DeepSeek-V4-Flash",
+    description:
+      "Usage rates for the DeepSeek-V4-Flash model (DeepSeek) from the DeepInfra API, per 1 million tokens.",
+    valueLabels: {
+      "input-price": "Input price",
+      "input-price-cache-hit": "Input price (cache hit)",
+      "output-price": "Output price",
+    },
+  },
 };
 
 export function signalMeta(signalId: string): SignalMeta {
