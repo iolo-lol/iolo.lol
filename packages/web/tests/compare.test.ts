@@ -25,7 +25,7 @@ const addFormats = require("ajv-formats").default as FormatsPlugin;
  */
 
 describe("comparison projection (from real canonical Signals)", () => {
-  it("projects all twenty canonical Signals with identity and provenance", () => {
+  it("projects all twenty-four canonical Signals with identity and provenance", () => {
     const doc = comparisonFromSignalsDir(DEFAULT_SIGNALS_DIR);
     expect(doc.entries.map((e) => e.signalId)).toEqual([
       "anthropic-fable-5-usage-rates",
@@ -33,6 +33,10 @@ describe("comparison projection (from real canonical Signals)", () => {
       "anthropic-opus-5-usage-rates",
       "anthropic-sonnet-5-usage-rates",
       "cohere-command-r-plus-08-2024-usage-rates",
+      "deepinfra-claude-fable-5-usage-rates",
+      "deepinfra-claude-haiku-4-5-usage-rates",
+      "deepinfra-claude-opus-5-usage-rates",
+      "deepinfra-claude-sonnet-5-usage-rates",
       "deepinfra-deepseek-v4-flash-usage-rates",
       "deepinfra-deepseek-v4-pro-usage-rates",
       "deepinfra-kimi-k3-usage-rates",
