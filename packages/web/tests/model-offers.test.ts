@@ -141,6 +141,33 @@ describe("model-offers projection (real canonical Signals)", () => {
         "input-price",
         "output-price",
       ]);
+      const byName = new Map(
+        deepInfra!.dimensions.map((d) => [d.name, d]),
+      );
+      if (identityId === "sonnet-5") {
+        // the sonnet-5 DeepInfra offer carries the verbatim authoritative
+        // promotional condition on both statements (blocker fix #38)
+        expect(byName.get("input-price")?.statements).toEqual([
+          {
+            value: 2,
+            note: "Promotional launch pricing in effect through August 31, 2026",
+          },
+        ]);
+        expect(byName.get("output-price")?.statements).toEqual([
+          {
+            value: 10,
+            note: "Promotional launch pricing in effect through August 31, 2026",
+          },
+        ]);
+      } else {
+        // the other three Claude counterparts declare no condition
+        expect(byName.get("input-price")?.statements).toEqual([
+          { value: expect.any(Number), note: "" },
+        ]);
+        expect(byName.get("output-price")?.statements).toEqual([
+          { value: expect.any(Number), note: "" },
+        ]);
+      }
     }
     // unrelated single-offer groups are unchanged
     const gemini = doc.groups.find((g) => g.identityId === "gemini-3.7-flash");

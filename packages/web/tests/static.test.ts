@@ -268,6 +268,11 @@ describe("static site generator", () => {
     expect(page).toContain("DeepInfra hosted");
     expect(page).toContain("claude.com/pricing");
     expect(page).toContain("deepinfra.com/pricing");
+    // the sonnet-5 DeepInfra promotional condition renders verbatim on the
+    // offers page (qualifier on the current-value card)
+    expect(page).toContain(
+      "Promotional launch pricing in effect through August 31, 2026",
+    );
 
     // the static artifact shows the fable-5 group with exactly two offers
     const artifact = JSON.parse(
@@ -278,6 +283,53 @@ describe("static site generator", () => {
     };
     const fable = artifact.groups.find((g) => g.identityId === "fable-5");
     expect(fable?.offers).toHaveLength(2);
+
+    // the generated sonnet-5 signal artifact carries the verbatim note
+    const sonnetSignal = JSON.parse(
+      readFileSync(
+        path.join(
+          outDir,
+          "api/v1/signals/deepinfra-claude-sonnet-5-usage-rates.json",
+        ),
+        "utf8",
+      ),
+    ) as {
+      values: { name: string; statements: { value: number; note: string }[] }[];
+    };
+    for (const value of sonnetSignal.values) {
+      expect(value.statements).toEqual([
+        {
+          value: value.name === "input-price" ? 2 : 10,
+          note: "Promotional launch pricing in effect through August 31, 2026",
+        },
+      ]);
+    }
+
+    // the comparison projection carries the note on the sonnet-5
+    // DeepInfra signal's statements (compare.ts maps note verbatim)
+    const comparisons = JSON.parse(
+      readFileSync(
+        path.join(outDir, "api/v1/comparisons/index.json"),
+        "utf8",
+      ),
+    ) as {
+      entries: {
+        signalId: string;
+        dimensions: { name: string; statements: { note: string }[] }[];
+      }[];
+    };
+    const sonnetEntry = comparisons.entries.find(
+      (entry) => entry.signalId === "deepinfra-claude-sonnet-5-usage-rates",
+    );
+    expect(sonnetEntry).toBeDefined();
+    for (const dim of sonnetEntry!.dimensions) {
+      expect(dim.statements).toEqual([
+        {
+          value: dim.name === "input-price" ? 2 : 10,
+          note: "Promotional launch pricing in effect through August 31, 2026",
+        },
+      ]);
+    }
   });
 
   it("skips history for a signal without one and renders from any data dir", () => {
