@@ -174,6 +174,50 @@ export const SIGNAL_META: Record<string, SignalMeta> = {
       "output-price": "Output price",
     },
   },
+  "deepinfra-claude-fable-5-usage-rates": {
+    title: "Fable 5 usage rates (DeepInfra)",
+    provider: "DeepInfra",
+    model: "Fable 5",
+    description:
+      "Usage rates for the Fable 5 model (Anthropic) from the DeepInfra API, per 1 million tokens.",
+    valueLabels: {
+      "input-price": "Input price",
+      "output-price": "Output price",
+    },
+  },
+  "deepinfra-claude-opus-5-usage-rates": {
+    title: "Opus 5 usage rates (DeepInfra)",
+    provider: "DeepInfra",
+    model: "Opus 5",
+    description:
+      "Usage rates for the Opus 5 model (Anthropic) from the DeepInfra API, per 1 million tokens.",
+    valueLabels: {
+      "input-price": "Input price",
+      "output-price": "Output price",
+    },
+  },
+  "deepinfra-claude-sonnet-5-usage-rates": {
+    title: "Sonnet 5 usage rates (DeepInfra)",
+    provider: "DeepInfra",
+    model: "Sonnet 5",
+    description:
+      "Usage rates for the Sonnet 5 model (Anthropic) from the DeepInfra API, per 1 million tokens.",
+    valueLabels: {
+      "input-price": "Input price",
+      "output-price": "Output price",
+    },
+  },
+  "deepinfra-claude-haiku-4-5-usage-rates": {
+    title: "Haiku 4.5 usage rates (DeepInfra)",
+    provider: "DeepInfra",
+    model: "Haiku 4.5",
+    description:
+      "Usage rates for the Haiku 4.5 model (Anthropic) from the DeepInfra API, per 1 million tokens.",
+    valueLabels: {
+      "input-price": "Input price",
+      "output-price": "Output price",
+    },
+  },
   "anthropic-fable-5-usage-rates": {
     title: "Fable 5 usage rates",
     provider: "Anthropic",

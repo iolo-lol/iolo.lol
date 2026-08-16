@@ -12,7 +12,11 @@
  * because the exact model identifier appears on both the DeepSeek first-party
  * pricing source and the DeepInfra pricing page; the dated
  * `DeepSeek-V4-Flash-0731` variant and all Flash/Pro/Max/family siblings are
- * deliberately NOT grouped (recorded in SPEC-11).
+ * deliberately NOT grouped (recorded in SPEC-11). M12 adds the same two-offer
+ * shape to the four Claude identities (Fable 5, Opus 5, Sonnet 5, Haiku 4.5):
+ * each exact model appears on both the Anthropic first-party source and the
+ * DeepInfra pricing page; the `claude-sonnet-4-6` / `claude-opus-4-7` /
+ * `claude-opus-4-8` variants are NOT grouped (same SPEC-11 exact-model rule).
  *
  * Canonical Signals remain the sole pricing truth source; this mapping only
  * carries identity/offer presentation state, and the derived offers document
@@ -182,6 +186,11 @@ export const MODEL_IDENTITIES: ModelIdentityMeta[] = [
         provider: "Anthropic",
         offer: "Anthropic API",
       },
+      {
+        signalId: "deepinfra-claude-fable-5-usage-rates",
+        provider: "DeepInfra",
+        offer: "DeepInfra hosted",
+      },
     ],
   },
   {
@@ -193,6 +202,11 @@ export const MODEL_IDENTITIES: ModelIdentityMeta[] = [
         signalId: "anthropic-opus-5-usage-rates",
         provider: "Anthropic",
         offer: "Anthropic API",
+      },
+      {
+        signalId: "deepinfra-claude-opus-5-usage-rates",
+        provider: "DeepInfra",
+        offer: "DeepInfra hosted",
       },
     ],
   },
@@ -206,6 +220,11 @@ export const MODEL_IDENTITIES: ModelIdentityMeta[] = [
         provider: "Anthropic",
         offer: "Anthropic API",
       },
+      {
+        signalId: "deepinfra-claude-sonnet-5-usage-rates",
+        provider: "DeepInfra",
+        offer: "DeepInfra hosted",
+      },
     ],
   },
   {
@@ -217,6 +236,11 @@ export const MODEL_IDENTITIES: ModelIdentityMeta[] = [
         signalId: "anthropic-haiku-4.5-usage-rates",
         provider: "Anthropic",
         offer: "Anthropic API",
+      },
+      {
+        signalId: "deepinfra-claude-haiku-4-5-usage-rates",
+        provider: "DeepInfra",
+        offer: "DeepInfra hosted",
       },
     ],
   },
