@@ -332,6 +332,26 @@ describe("static site generator", () => {
     }
   });
 
+  it("shows the Sonnet 5 promotional condition on the generated signal detail page", () => {
+    const outDir = mkdtempSync(path.join(tmpdir(), "iolo-static-"));
+    generateSite(DEFAULT_SIGNALS_DIR, outDir);
+    const detail = readFileSync(
+      path.join(
+        outDir,
+        "signals/deepinfra-claude-sonnet-5-usage-rates/index.html",
+      ),
+      "utf8",
+    );
+    expect(detail).toContain("Sonnet 5 usage rates (DeepInfra)");
+    expect(detail).toContain("Current state");
+    expect(detail).toContain("2 USD per 1M tokens");
+    expect(detail).toContain("10 USD per 1M tokens");
+    // the authoritative condition is visible on the detail page too
+    expect(detail).toContain(
+      "Promotional launch pricing in effect through August 31, 2026",
+    );
+  });
+
   it("skips history for a signal without one and renders from any data dir", () => {
     const signalsDir = mkdtempSync(path.join(tmpdir(), "iolo-signals-"));
     const outDir = mkdtempSync(path.join(tmpdir(), "iolo-static-"));
