@@ -25,9 +25,13 @@ const addFormats = require("ajv-formats").default as FormatsPlugin;
  */
 
 describe("comparison projection (from real canonical Signals)", () => {
-  it("projects all twelve canonical Signals with identity and provenance", () => {
+  it("projects all twenty canonical Signals with identity and provenance", () => {
     const doc = comparisonFromSignalsDir(DEFAULT_SIGNALS_DIR);
     expect(doc.entries.map((e) => e.signalId)).toEqual([
+      "anthropic-fable-5-usage-rates",
+      "anthropic-haiku-4.5-usage-rates",
+      "anthropic-opus-5-usage-rates",
+      "anthropic-sonnet-5-usage-rates",
       "cohere-command-r-plus-08-2024-usage-rates",
       "deepinfra-deepseek-v4-flash-usage-rates",
       "deepinfra-deepseek-v4-pro-usage-rates",
@@ -38,6 +42,10 @@ describe("comparison projection (from real canonical Signals)", () => {
       "openai-gpt-5.6-luna-usage-rates",
       "openai-gpt-5.6-sol-usage-rates",
       "openai-gpt-5.6-terra-usage-rates",
+      "perplexity-sonar-deep-research-usage-rates",
+      "perplexity-sonar-pro-usage-rates",
+      "perplexity-sonar-reasoning-pro-usage-rates",
+      "perplexity-sonar-usage-rates",
       "together-qwen3.8-2.4t-a95b-usage-rates",
       "xai-grok-4.6-usage-rates",
     ]);

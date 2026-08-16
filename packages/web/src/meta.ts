@@ -174,6 +174,104 @@ export const SIGNAL_META: Record<string, SignalMeta> = {
       "output-price": "Output price",
     },
   },
+  "anthropic-fable-5-usage-rates": {
+    title: "Fable 5 usage rates",
+    provider: "Anthropic",
+    model: "Fable 5",
+    description:
+      "Usage rates for the Fable 5 model from the Anthropic API, per 1 million tokens.",
+    valueLabels: {
+      "input-price": "Input price",
+      "output-price": "Output price",
+      "cache-writes": "Cache writes",
+      "cache-reads": "Cache reads",
+    },
+  },
+  "anthropic-opus-5-usage-rates": {
+    title: "Opus 5 usage rates",
+    provider: "Anthropic",
+    model: "Opus 5",
+    description:
+      "Usage rates for the Opus 5 model from the Anthropic API, per 1 million tokens.",
+    valueLabels: {
+      "input-price": "Input price",
+      "output-price": "Output price",
+      "cache-writes": "Cache writes",
+      "cache-reads": "Cache reads",
+    },
+  },
+  "anthropic-sonnet-5-usage-rates": {
+    title: "Sonnet 5 usage rates",
+    provider: "Anthropic",
+    model: "Sonnet 5",
+    description:
+      "Usage rates for the Sonnet 5 model from the Anthropic API, per 1 million tokens.",
+    valueLabels: {
+      "input-price": "Input price",
+      "output-price": "Output price",
+      "cache-writes": "Cache writes",
+      "cache-reads": "Cache reads",
+    },
+  },
+  "anthropic-haiku-4.5-usage-rates": {
+    title: "Haiku 4.5 usage rates",
+    provider: "Anthropic",
+    model: "Haiku 4.5",
+    description:
+      "Usage rates for the Haiku 4.5 model from the Anthropic API, per 1 million tokens.",
+    valueLabels: {
+      "input-price": "Input price",
+      "output-price": "Output price",
+      "cache-writes": "Cache writes",
+      "cache-reads": "Cache reads",
+    },
+  },
+  "perplexity-sonar-usage-rates": {
+    title: "Sonar usage rates",
+    provider: "Perplexity",
+    model: "Sonar",
+    description:
+      "Usage rates for the Sonar model from the Perplexity API, per 1 million tokens.",
+    valueLabels: {
+      "input-price": "Input price",
+      "output-price": "Output price",
+    },
+  },
+  "perplexity-sonar-pro-usage-rates": {
+    title: "Sonar Pro usage rates",
+    provider: "Perplexity",
+    model: "Sonar Pro",
+    description:
+      "Usage rates for the Sonar Pro model from the Perplexity API, per 1 million tokens.",
+    valueLabels: {
+      "input-price": "Input price",
+      "output-price": "Output price",
+    },
+  },
+  "perplexity-sonar-reasoning-pro-usage-rates": {
+    title: "Sonar Reasoning Pro usage rates",
+    provider: "Perplexity",
+    model: "Sonar Reasoning Pro",
+    description:
+      "Usage rates for the Sonar Reasoning Pro model from the Perplexity API, per 1 million tokens.",
+    valueLabels: {
+      "input-price": "Input price",
+      "output-price": "Output price",
+    },
+  },
+  "perplexity-sonar-deep-research-usage-rates": {
+    title: "Sonar Deep Research usage rates",
+    provider: "Perplexity",
+    model: "Sonar Deep Research",
+    description:
+      "Usage rates for the Sonar Deep Research model from the Perplexity API, per 1 million tokens.",
+    valueLabels: {
+      "input-price": "Input price",
+      "output-price": "Output price",
+      "citation-price": "Citation tokens",
+      "reasoning-price": "Reasoning tokens",
+    },
+  },
 };
 
 export function signalMeta(signalId: string): SignalMeta {
