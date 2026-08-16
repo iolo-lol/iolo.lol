@@ -3,11 +3,11 @@
   "signalId": "deepinfra-claude-sonnet-5-usage-rates",
   "entries": [
     {
-      "publishedAt": "2026-08-16T12:00:28.132Z",
+      "publishedAt": "2026-08-16T16:48:28.419Z",
       "result": {
         "schemaVersion": 1,
         "signalId": "deepinfra-claude-sonnet-5-usage-rates",
-        "observedAt": "2026-08-16T12:00:28.094Z",
+        "observedAt": "2026-08-16T16:48:28.386Z",
         "source": {
           "url": "https://deepinfra.com/pricing",
           "fetchedAt": "2026-08-15T12:18:02.371Z",
@@ -21,7 +21,7 @@
             "statements": [
               {
                 "value": 2,
-                "note": ""
+                "note": "Promotional launch pricing in effect through August 31, 2026"
               }
             ]
           },
@@ -32,7 +32,7 @@
             "statements": [
               {
                 "value": 10,
-                "note": ""
+                "note": "Promotional launch pricing in effect through August 31, 2026"
               }
             ]
           }
