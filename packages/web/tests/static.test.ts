@@ -256,6 +256,30 @@ describe("static site generator", () => {
     expect(flash?.offers).toHaveLength(2);
   });
 
+  it("renders a Claude exact-model group with both provider offers in the generated site", () => {
+    const outDir = mkdtempSync(path.join(tmpdir(), "iolo-static-"));
+    generateSite(DEFAULT_SIGNALS_DIR, outDir);
+
+    const page = readFileSync(path.join(outDir, "offers/index.html"), "utf8");
+    // the Fable 5 group shows both provider offers with attribution
+    expect(page).toContain("Fable 5");
+    expect(page).toContain("developer: Anthropic");
+    expect(page).toContain("Anthropic API");
+    expect(page).toContain("DeepInfra hosted");
+    expect(page).toContain("claude.com/pricing");
+    expect(page).toContain("deepinfra.com/pricing");
+
+    // the static artifact shows the fable-5 group with exactly two offers
+    const artifact = JSON.parse(
+      readFileSync(path.join(outDir, "api/v1/model-offers/index.json"), "utf8"),
+    ) as {
+      schemaVersion: number;
+      groups: { identityId: string; offers: unknown[] }[];
+    };
+    const fable = artifact.groups.find((g) => g.identityId === "fable-5");
+    expect(fable?.offers).toHaveLength(2);
+  });
+
   it("skips history for a signal without one and renders from any data dir", () => {
     const signalsDir = mkdtempSync(path.join(tmpdir(), "iolo-signals-"));
     const outDir = mkdtempSync(path.join(tmpdir(), "iolo-static-"));
