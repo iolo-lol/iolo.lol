@@ -28,9 +28,11 @@ result without leaking engine implementation details.
 - REQ-003: Canonical signal state is product-owned data committed under
   `data/signals/<signalId>.json` in the product repository. Each file holds one
   Result conforming to the contract. The public surface reads only this state.
-- REQ-004: The read API (served by `packages/web`, port 3000) exposes
-  `GET /api/v1/signals` (list of signal ids) and `GET /api/v1/signals/:signalId`
-  (the canonical Result), both sourced from the canonical state files.
+- REQ-004: The read API (served by the SvelteKit static application under
+  `apps/web`; `pnpm --filter @iolo.lol/web build` prerenders it, `pnpm preview`
+  serves it) exposes `GET /api/v1/signals` (list of signal ids) and
+  `GET /api/v1/signals/:signalId` (the canonical Result), both sourced from
+  the canonical state files.
 - REQ-005: The web surface `GET /` presents the first Signal's values together
   with its source URL, `fetchedAt`, and `contentHash`, so a displayed value is
   traceable to source evidence.

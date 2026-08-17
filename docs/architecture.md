@@ -14,7 +14,8 @@ written.
 `iolo-lol/engine` is the project control plane: product roadmap, milestones,
 architecture decisions, execution issues, private operational logic, and
 cross-repo implementation coordination live there. `iolo-lol/iolo.lol` is the
-public presentation/distribution surface: the static site, read-only
+public presentation/distribution surface: the SvelteKit static web
+application (fully prerendered, no SSR), read-only
 generated API/feed/sitemap artifacts, and public schemas or generated data
 required by that surface. It is not the project-management or roadmap
 authority.
@@ -46,6 +47,18 @@ A component belongs to the engine when it is operational implementation or
 processes private data. A component belongs to the product repository when it
 is part of the public product surface, even if it is backend code. Public
 contracts must not require private engine implementation details.
+
+## Web application architecture
+
+The deployable public web application converges on **SvelteKit + TypeScript +
+static generation** ([iolo-lol/engine#44](https://github.com/iolo-lol/engine/issues/44)):
+a fully prerendered static application in `apps/web` (`@sveltejs/adapter-static`,
+no SSR and no request-time logic) that renders the human-facing routes and the
+static `/api/v1/*`, `feed.xml`, and `sitemap.xml` artifacts from the canonical
+`data/signals` state through the same deterministic pure projections. The
+production runtime remains Cloudflare Workers Static Assets, assets-only
+(ADR-0005). Stable pure projection/data modules stay plain TypeScript and are
+not framework-coupled.
 
 ## Contract ownership
 

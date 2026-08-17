@@ -1,5 +1,6 @@
 packages:
   - packages/*
+  - apps/*
 
 # Allow install scripts for wrangler's native dependencies (esbuild and
 # workerd); required for `wrangler deploy`/`dev` to function and for CI's
