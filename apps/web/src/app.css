@@ -18,6 +18,8 @@
   --header-bg: rgba(251, 251, 253, 0.82);
   --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.04), 0 0 0 1px var(--line);
   --shadow-card-hover: 0 6px 20px -4px rgba(0, 0, 0, 0.08), 0 0 0 1px var(--line-strong);
+  --page-width: 60rem;
+  --page-padding-x: 1.25rem;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -69,9 +71,9 @@ header.site {
 }
 
 nav {
-  max-width: 60rem;
+  max-width: var(--page-width);
   margin: 0 auto;
-  padding: 0.75rem 1.25rem;
+  padding: 0.75rem var(--page-padding-x);
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem 1.5rem;
@@ -109,12 +111,16 @@ nav a.nav:active {
   transform: scale(0.97);
 }
 
-main { max-width: 60rem; margin: 0 auto; padding: 2.5rem 1.25rem 3.5rem; }
+main {
+  max-width: var(--page-width);
+  margin: 0 auto;
+  padding: 2.5rem var(--page-padding-x) 3.5rem;
+}
 
 footer {
-  max-width: 60rem;
+  max-width: var(--page-width);
   margin: 0 auto;
-  padding: 1.75rem 1.25rem 3rem;
+  padding: 1.75rem var(--page-padding-x) 3rem;
   border-top: 1px solid var(--line);
   color: var(--muted);
   font-size: 0.875rem;
@@ -404,10 +410,9 @@ ol.history .num {
 }
 
 /* Comparison page */
-main:has(.compare-page) {
-  max-width: min(96vw, 110rem);
-  padding-left: clamp(1rem, 2.5vw, 2.5rem);
-  padding-right: clamp(1rem, 2.5vw, 2.5rem);
+:root:has(.compare-page) {
+  --page-width: min(96vw, 110rem);
+  --page-padding-x: clamp(1.25rem, 2.5vw, 2.5rem);
 }
 
 .compare-page h1,
