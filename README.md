@@ -23,9 +23,8 @@ A pnpm monorepo:
 The human-facing website is published at the canonical
 <https://iolo.lol/> through Cloudflare Workers Static Assets
 (`wrangler.jsonc` + Workers Builds from this repository; see ADR-0005).
-During cutover the GitHub Pages project URL
-<https://iolo-lol.github.io/iolo.lol/> remains a temporary fallback.
-Pages:
+
+Routes:
 
 - `/` — home: what iolo.lol is, what Signals are, current Signals, recent changes
 - `/signals/` — Signals index with human-readable names

@@ -18,7 +18,7 @@ updates:
       minor-and-patch:
         update-types: ["minor", "patch"]
 
-  # GitHub Actions workflows (ci.yml, pages.yml).
+  # GitHub Actions workflows (ci.yml).
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:

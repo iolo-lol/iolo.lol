@@ -1,7 +1,7 @@
 kind: iolo-spec/v1
 id: SPEC-20-cloudflare-deployment
 title: Migrate public deployment to Cloudflare Workers Static Assets
-status: in-progress
+status: accepted
 related_issue: "#20"
 owner: PM
 freshness: live
@@ -63,9 +63,5 @@ Worker logic.
 
 ## Unresolved questions
 
-- Q-001 [verification]: how to verify `https://iolo.lol/` from a network
-  environment where DNS resolution is not yet pointed at Cloudflare
-  (operator/domain-admin action; mirrors SPEC-19 Q-001).
-- Q-002 [verification]: whether Cloudflare account and Workers Builds
-  configuration can be completed from the implementing environment, or must
-  be recorded as an operator action with a QA evidence boundary.
+None. Cloudflare Workers Static Assets, Workers Builds, the `iolo.lol` custom
+domain, and the live canonical surface were verified in QA-20.

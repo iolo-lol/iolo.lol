@@ -42,10 +42,9 @@ recorded; none is.
    domain-administration action outside repository scope. The SvelteKit
    static build preserves the stable paths: `/signals/...`, `api/v1/...`,
    `feed.xml`, `sitemap.xml`.
-4. **GitHub Pages**: the Pages deployment becomes a temporary fallback during
-   cutover only. `.github/workflows/pages.yml` is retained and marked as such;
-   it is removed once QA verifies the Cloudflare production surface and DNS
-   serves `iolo.lol` from Cloudflare.
+4. **GitHub Pages**: the Pages deployment was retained as a temporary fallback
+   during cutover and was removed after QA verified the Cloudflare production
+   surface and DNS serving `iolo.lol` from Cloudflare.
 5. **CI**: GitHub Actions remains the repository CI (`pnpm check`) and gains
    a deploy dry-run job (`wrangler deploy --dry-run`) proving the generated
    site is a reproducible Workers Static Assets deployment without publishing.
@@ -63,11 +62,10 @@ contracts.
 - Deployment is reproducible and reviewable from the public repository; the
   same `wrangler.jsonc` and `pnpm deploy` are used locally and by Workers
   Builds.
-- A temporary Pages fallback keeps the existing serving path live during
-  cutover; removing it is follow-up after QA verification.
-- Cloudflare account configuration and `iolo.lol` DNS pointing remain
-  external operator/domain-administration actions; acceptance records them as
-  an evidence boundary until they land.
+- The former Pages fallback is retired; production is served by Cloudflare
+  Workers Static Assets.
+- Cloudflare account configuration and `iolo.lol` DNS pointing were verified as
+  deployed operator/domain-administration state in QA-20.
 
 ## Compatibility impact
 
@@ -75,12 +73,9 @@ Public API paths, contracts, canonical URLs, feed, and sitemap are unchanged.
 `feed.xml` and `sitemap.xml` link origins remain `https://iolo.lol/`.
 Static-file content types follow Cloudflare's extension mapping
 (`application/json`, `application/xml`); the Atom feed is byte-identical to
-the generated output, and its serving content type is verified in QA-20 as an
-evidence boundary. GitHub Pages remains available as a fallback during
-cutover.
+the generated output, and its serving content type is verified in QA-20.
 
 ## Open questions
 
 - None for the architecture; Cloudflare account creation, Workers Builds
-  connection, custom-domain binding, and DNS pointing are tracked as
-  operator/domain-administration actions (SPEC-20 Q-001/Q-002).
+  connection, custom-domain binding, and DNS pointing are verified in QA-20.
