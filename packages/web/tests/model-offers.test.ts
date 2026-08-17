@@ -26,8 +26,8 @@ describe("model-offers projection (real canonical Signals)", () => {
   it("groups every canonical Signal into exactly one identity", () => {
     const doc = offersFromSignalsDir(DEFAULT_SIGNALS_DIR);
     const totalOffers = doc.groups.reduce((n, g) => n + g.offers.length, 0);
-    // twenty canonical Signals -> twenty offers across the groups
-    expect(totalOffers).toBe(20);
+    // twenty-four canonical Signals -> twenty-four offers across the groups
+    expect(totalOffers).toBe(24);
     const bySignal = new Map(
       doc.groups.flatMap((g) => g.offers.map((o) => [o.signalId, g])),
     );
@@ -87,9 +87,91 @@ describe("model-offers projection (real canonical Signals)", () => {
     }
     expect(new Set(ids).size).toBe(ids.length);
     expect(ids).not.toContain("deepseek-v4-flash-0731");
-    // only DeepSeek V4 Flash has more than one offer
+    // only DeepSeek V4 Flash and the four Claude exact counterparts have
+    // more than one offer
     const multi = doc.groups.filter((g) => g.offers.length > 1);
-    expect(multi.map((g) => g.identityId)).toEqual(["deepseek-v4-flash"]);
+    expect(multi.map((g) => g.identityId)).toEqual([
+      "deepseek-v4-flash",
+      "fable-5",
+      "opus-5",
+      "sonnet-5",
+      "haiku-4.5",
+    ]);
+  });
+
+  it("resolves each Claude identity to exactly one group with two offers (Anthropic + DeepInfra)", () => {
+    const doc = offersFromSignalsDir(DEFAULT_SIGNALS_DIR);
+    const deepInfraHash =
+      "sha256:d8c69b68339e1fd766a5832ef405ea76d26291f7065a32b108de3f8e210cebd4";
+    for (const [
+      identityId,
+      anthropicSignalId,
+      deepInfraSignalId,
+    ] of [
+      ["fable-5", "anthropic-fable-5-usage-rates", "deepinfra-claude-fable-5-usage-rates"],
+      ["opus-5", "anthropic-opus-5-usage-rates", "deepinfra-claude-opus-5-usage-rates"],
+      ["sonnet-5", "anthropic-sonnet-5-usage-rates", "deepinfra-claude-sonnet-5-usage-rates"],
+      ["haiku-4.5", "anthropic-haiku-4.5-usage-rates", "deepinfra-claude-haiku-4-5-usage-rates"],
+    ]) {
+      const groups = doc.groups.filter((g) => g.identityId === identityId);
+      expect(groups).toHaveLength(1);
+      const group = groups[0]!;
+      expect(group.developer).toBe("Anthropic");
+      expect(group.offers).toHaveLength(2);
+      expect(group.offers.map((o) => o.provider)).toEqual([
+        "Anthropic",
+        "DeepInfra",
+      ]);
+      const firstParty = group.offers.find(
+        (o) => o.signalId === anthropicSignalId,
+      );
+      // Anthropic first-party conditional statements preserved verbatim
+      for (const dim of firstParty!.dimensions) {
+        for (const s of dim.statements) {
+          expect(s.note).toBe("Save 50% with batch processing.");
+        }
+      }
+      const deepInfra = group.offers.find(
+        (o) => o.signalId === deepInfraSignalId,
+      );
+      expect(deepInfra!.source.url).toBe("https://deepinfra.com/pricing");
+      expect(deepInfra!.source.contentHash).toBe(deepInfraHash);
+      // DeepInfra serves no cached-input price for Claude rows
+      expect(deepInfra!.dimensions.map((d) => d.name).sort()).toEqual([
+        "input-price",
+        "output-price",
+      ]);
+      const byName = new Map(
+        deepInfra!.dimensions.map((d) => [d.name, d]),
+      );
+      if (identityId === "sonnet-5") {
+        // the sonnet-5 DeepInfra offer carries the verbatim authoritative
+        // promotional condition on both statements (blocker fix #38)
+        expect(byName.get("input-price")?.statements).toEqual([
+          {
+            value: 2,
+            note: "Promotional launch pricing in effect through August 31, 2026",
+          },
+        ]);
+        expect(byName.get("output-price")?.statements).toEqual([
+          {
+            value: 10,
+            note: "Promotional launch pricing in effect through August 31, 2026",
+          },
+        ]);
+      } else {
+        // the other three Claude counterparts declare no condition
+        expect(byName.get("input-price")?.statements).toEqual([
+          { value: expect.any(Number), note: "" },
+        ]);
+        expect(byName.get("output-price")?.statements).toEqual([
+          { value: expect.any(Number), note: "" },
+        ]);
+      }
+    }
+    // unrelated single-offer groups are unchanged
+    const gemini = doc.groups.find((g) => g.identityId === "gemini-3.7-flash");
+    expect(gemini?.offers).toHaveLength(1);
   });
 
   it("preserves developer-vs-provider attribution for hosted models", () => {

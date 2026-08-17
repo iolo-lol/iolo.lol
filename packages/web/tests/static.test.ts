@@ -256,6 +256,102 @@ describe("static site generator", () => {
     expect(flash?.offers).toHaveLength(2);
   });
 
+  it("renders a Claude exact-model group with both provider offers in the generated site", () => {
+    const outDir = mkdtempSync(path.join(tmpdir(), "iolo-static-"));
+    generateSite(DEFAULT_SIGNALS_DIR, outDir);
+
+    const page = readFileSync(path.join(outDir, "offers/index.html"), "utf8");
+    // the Fable 5 group shows both provider offers with attribution
+    expect(page).toContain("Fable 5");
+    expect(page).toContain("developer: Anthropic");
+    expect(page).toContain("Anthropic API");
+    expect(page).toContain("DeepInfra hosted");
+    expect(page).toContain("claude.com/pricing");
+    expect(page).toContain("deepinfra.com/pricing");
+    // the sonnet-5 DeepInfra promotional condition renders verbatim on the
+    // offers page (qualifier on the current-value card)
+    expect(page).toContain(
+      "Promotional launch pricing in effect through August 31, 2026",
+    );
+
+    // the static artifact shows the fable-5 group with exactly two offers
+    const artifact = JSON.parse(
+      readFileSync(path.join(outDir, "api/v1/model-offers/index.json"), "utf8"),
+    ) as {
+      schemaVersion: number;
+      groups: { identityId: string; offers: unknown[] }[];
+    };
+    const fable = artifact.groups.find((g) => g.identityId === "fable-5");
+    expect(fable?.offers).toHaveLength(2);
+
+    // the generated sonnet-5 signal artifact carries the verbatim note
+    const sonnetSignal = JSON.parse(
+      readFileSync(
+        path.join(
+          outDir,
+          "api/v1/signals/deepinfra-claude-sonnet-5-usage-rates.json",
+        ),
+        "utf8",
+      ),
+    ) as {
+      values: { name: string; statements: { value: number; note: string }[] }[];
+    };
+    for (const value of sonnetSignal.values) {
+      expect(value.statements).toEqual([
+        {
+          value: value.name === "input-price" ? 2 : 10,
+          note: "Promotional launch pricing in effect through August 31, 2026",
+        },
+      ]);
+    }
+
+    // the comparison projection carries the note on the sonnet-5
+    // DeepInfra signal's statements (compare.ts maps note verbatim)
+    const comparisons = JSON.parse(
+      readFileSync(
+        path.join(outDir, "api/v1/comparisons/index.json"),
+        "utf8",
+      ),
+    ) as {
+      entries: {
+        signalId: string;
+        dimensions: { name: string; statements: { note: string }[] }[];
+      }[];
+    };
+    const sonnetEntry = comparisons.entries.find(
+      (entry) => entry.signalId === "deepinfra-claude-sonnet-5-usage-rates",
+    );
+    expect(sonnetEntry).toBeDefined();
+    for (const dim of sonnetEntry!.dimensions) {
+      expect(dim.statements).toEqual([
+        {
+          value: dim.name === "input-price" ? 2 : 10,
+          note: "Promotional launch pricing in effect through August 31, 2026",
+        },
+      ]);
+    }
+  });
+
+  it("shows the Sonnet 5 promotional condition on the generated signal detail page", () => {
+    const outDir = mkdtempSync(path.join(tmpdir(), "iolo-static-"));
+    generateSite(DEFAULT_SIGNALS_DIR, outDir);
+    const detail = readFileSync(
+      path.join(
+        outDir,
+        "signals/deepinfra-claude-sonnet-5-usage-rates/index.html",
+      ),
+      "utf8",
+    );
+    expect(detail).toContain("Sonnet 5 usage rates (DeepInfra)");
+    expect(detail).toContain("Current state");
+    expect(detail).toContain("2 USD per 1M tokens");
+    expect(detail).toContain("10 USD per 1M tokens");
+    // the authoritative condition is visible on the detail page too
+    expect(detail).toContain(
+      "Promotional launch pricing in effect through August 31, 2026",
+    );
+  });
+
   it("skips history for a signal without one and renders from any data dir", () => {
     const signalsDir = mkdtempSync(path.join(tmpdir(), "iolo-signals-"));
     const outDir = mkdtempSync(path.join(tmpdir(), "iolo-static-"));

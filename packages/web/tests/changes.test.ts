@@ -27,10 +27,10 @@ const addFormats = require("ajv-formats").default as FormatsPlugin;
  */
 
 describe("changes projection (real canonical Signals)", () => {
-  it("runs over all twenty canonical Signals and emits zero observed records from single-snapshot history", () => {
+  it("runs over all twenty-four canonical Signals and emits zero observed records from single-snapshot history", () => {
     // the projection loads every canonical current+history file in data/signals/
     const ids = signalIds(DEFAULT_SIGNALS_DIR);
-    expect(ids).toHaveLength(20);
+    expect(ids).toHaveLength(24);
     const doc = changesFromSignalsDir(DEFAULT_SIGNALS_DIR);
     const observed = doc.records.filter((r) => r.kind === "observed");
     expect(observed).toEqual([]);

@@ -80,6 +80,28 @@ describe("model identity mapping (product-owned, M10 #25)", () => {
       expect(identity.developer).not.toBe(identity.offers[0]?.provider);
     }
   });
+
+  it("resolves each Claude identity to two offers (Anthropic + DeepInfra), developer Anthropic", () => {
+    const claudeIdentities: [string, string, string][] = [
+      ["anthropic-fable-5-usage-rates", "fable-5", "deepinfra-claude-fable-5-usage-rates"],
+      ["anthropic-opus-5-usage-rates", "opus-5", "deepinfra-claude-opus-5-usage-rates"],
+      ["anthropic-sonnet-5-usage-rates", "sonnet-5", "deepinfra-claude-sonnet-5-usage-rates"],
+      ["anthropic-haiku-4.5-usage-rates", "haiku-4.5", "deepinfra-claude-haiku-4-5-usage-rates"],
+    ];
+    for (const [signalId, identityId, deepInfraSignalId] of claudeIdentities) {
+      const identity = identityForSignal(signalId);
+      expect(identity.id).toBe(identityId);
+      expect(identity.developer).toBe("Anthropic");
+      expect(identity.offers.map((o) => o.provider)).toEqual([
+        "Anthropic",
+        "DeepInfra",
+      ]);
+      // the DeepInfra offer points at the M12 same-source signal
+      expect(identity.offers[1]?.signalId).toBe(deepInfraSignalId);
+      // the host (DeepInfra) is never presented as the model developer
+      expect(identity.developer).not.toBe("DeepInfra");
+    }
+  });
 });
 
 describe("model-offers.v1 contract conformance", () => {
