@@ -9,9 +9,13 @@
 </script>
 
 <section class="card">
-	{#if meta.provider}
-		<div class="provider-tag">{meta.provider}</div>
-	{/if}
+	<div class="card-tags">
+		<span class="tag tag-type">{meta.type}</span>
+		<span class="tag tag-category">{meta.category}</span>
+		{#if meta.provider}
+			<span class="tag tag-provider">{meta.provider}</span>
+		{/if}
+	</div>
 	<h3><a href={`/signals/${signal.signalId}/`}>{meta.title}</a></h3>
 	{#if meta.description}
 		<p class="desc">{meta.description}</p>
