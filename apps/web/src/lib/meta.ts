@@ -1,3 +1,18 @@
+export type ContentCategory = "AI" | "Games" | "Software" | "Internet";
+export type ContentType = "Signal" | "Oddity";
+
+export const CONTROLLED_CATEGORIES: readonly ContentCategory[] = [
+  "AI",
+  "Games",
+  "Software",
+  "Internet",
+] as const;
+
+export const CONTROLLED_TYPES: readonly ContentType[] = [
+  "Signal",
+  "Oddity",
+] as const;
+
 /**
  * Product-owned presentation metadata: human-readable names for Signals and
  * their value fields. This is presentation state only — it never enters
@@ -13,6 +28,10 @@ export interface SignalMeta {
   model: string;
   /** One-sentence description for index and detail pages. */
   description: string;
+  /** Topic category (e.g. "AI", "Games", "Software", "Internet"). Defaults to "AI". */
+  category?: ContentCategory;
+  /** Content type (e.g. "Signal", "Oddity"). Defaults to "Signal". */
+  type?: ContentType;
   /** Human-readable label per normalized value name. */
   valueLabels: Record<string, string>;
 }
@@ -318,16 +337,43 @@ export const SIGNAL_META: Record<string, SignalMeta> = {
   },
 };
 
-export function signalMeta(signalId: string): SignalMeta {
-  return (
-    SIGNAL_META[signalId] ?? {
+export function signalMeta(
+  signalId: string,
+): SignalMeta & { category: ContentCategory; type: ContentType } {
+  const entry = SIGNAL_META[signalId];
+  if (!entry) {
+    return {
       title: signalId,
       provider: "",
       model: signalId,
       description: "",
+      category: "AI",
+      type: "Signal",
       valueLabels: {},
-    }
-  );
+    };
+  }
+  return {
+    ...entry,
+    category: entry.category ?? "AI",
+    type: entry.type ?? "Signal",
+    valueLabels: entry.valueLabels ?? {},
+  };
+}
+
+/**
+ * Derives the active, populated categories from published content.
+ * Guarantees that only categories containing at least one item are exposed,
+ * maintaining the canonical vocabulary ordering.
+ */
+export function derivePublishedCategories(
+  signalIds: string[],
+): ContentCategory[] {
+  const present = new Set<ContentCategory>();
+  for (const id of signalIds) {
+    const meta = signalMeta(id);
+    present.add(meta.category);
+  }
+  return CONTROLLED_CATEGORIES.filter((cat) => present.has(cat));
 }
 
 export function valueLabel(signalId: string, name: string): string {
