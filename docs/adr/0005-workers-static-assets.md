@@ -23,22 +23,24 @@ recorded; none is.
 
 1. **Serving runtime**: the production surface is deployed as **Cloudflare
    Workers Static Assets** (assets-only). `wrangler.jsonc` at the repository
-   root declares the assets directory (`packages/web/site`), trailing-slash
-   HTML handling, and the generated 404 page; it declares no `main` entry, so
+   root declares the assets directory (`apps/web/build`, produced by the
+   SvelteKit static build — [engine#44](https://github.com/iolo-lol/engine/issues/44)),
+   trailing-slash HTML handling, and the generated 404 page; it declares no
+   `main` entry, so
    static asset delivery does not require a Worker script. If concrete
    evidence later shows a Worker is necessary, that is a new decision.
 2. **Build/deploy path**: deployment uses **Cloudflare Workers Builds/Git
    integration** from the public `iolo-lol/iolo.lol` repository. The root
    directory is the repository root; the deploy command is the repository's
-   `pnpm deploy` script (generate + `wrangler deploy`). Workers Builds
-   installs dependencies from the pnpm lockfile and deploys on push to
+   `pnpm deploy` script (SvelteKit static build + `wrangler deploy`). Workers
+   Builds installs dependencies from the pnpm lockfile and deploys on push to
    `main`; non-production branch builds create preview versions, preserving
    review capability without a dynamic backend.
 3. **Canonical origin**: `https://iolo.lol/` remains the canonical production
    origin (ADR-0004 unchanged). A Cloudflare custom domain binds `iolo.lol`
    to the Worker; pointing the domain's DNS at Cloudflare is a
-   domain-administration action outside repository scope. The unchanged
-   generator preserves the stable paths: `/signals/...`, `api/v1/...`,
+   domain-administration action outside repository scope. The SvelteKit
+   static build preserves the stable paths: `/signals/...`, `api/v1/...`,
    `feed.xml`, `sitemap.xml`.
 4. **GitHub Pages**: the Pages deployment becomes a temporary fallback during
    cutover only. `.github/workflows/pages.yml` is retained and marked as such;

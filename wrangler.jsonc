@@ -7,7 +7,7 @@
   "compatibility_date": "2026-08-15",
   "preview_urls": true,
   "assets": {
-    "directory": "./packages/web/site",
+    "directory": "./apps/web/build",
     // Serve directory index.html for trailing-slash requests and redirect
     // non-slash forms to the canonical trailing-slash URLs.
     "html_handling": "auto-trailing-slash",

@@ -16,7 +16,7 @@ A pnpm monorepo:
 | Package | Purpose |
 | --- | --- |
 | `packages/contracts` | Shared public contracts (JSON Schema) and validation machinery |
-| `packages/web` | Read API + web surface; static-site generator for Cloudflare Workers Static Assets |
+| `apps/web` | SvelteKit static application (fully prerendered) for Cloudflare Workers Static Assets |
 
 ## Live surface
 
@@ -44,7 +44,7 @@ Machine-readable endpoints:
 Canonical data lives in `data/signals/` and is entered through the governed
 publication boundary (see `docs/adr/0002-canonical-state-and-publication-boundary.md`).
 Human-readable signal names are product-owned presentation state in
-`packages/web/src/meta.ts`; they never change canonical data or contracts.
+`apps/web/src/lib/meta.ts`; they never change canonical data or contracts.
 
 ## Reproducible local validation
 
@@ -53,15 +53,15 @@ Requires Node.js >= 24 and pnpm.
 ```sh
 pnpm install
 pnpm check   # typecheck + contract/schema validation tests
-pnpm --filter @iolo.lol/web generate   # render the static site into packages/web/site
-pnpm preview   # generate, then serve the static site locally via wrangler dev
+pnpm --filter @iolo.lol/web build   # render the SvelteKit static site into apps/web/build
+pnpm preview   # build, then serve the static site locally via wrangler dev
 ```
 
 ## Deployment
 
 The site deploys to Cloudflare Workers Static Assets from this repository
 (`wrangler.jsonc`; assets-only, no Worker script). Workers Builds runs
-`pnpm deploy` (generate + `wrangler deploy`) on push to `main`;
+`pnpm deploy` (build + `wrangler deploy`) on push to `main`;
 non-production branches produce preview versions. The same command performs a
 manual deploy after authenticating with `wrangler login`. Validate a
 deployment without publishing with `npx wrangler deploy --dry-run`.
