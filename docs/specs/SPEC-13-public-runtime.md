@@ -15,11 +15,11 @@ implementation at request time.
 
 ## Requirements
 
-- REQ-001: The product repository contains a reproducible static-site
-  generator (`pnpm --filter @iolo.lol/web generate`) that renders the
-  canonical state under `data/signals/` into a deployable directory with the
-  same JSON semantics as the local server: `index.html`,
-  `api/v1/signals.json`, `api/v1/signals/<signalId>.json`, and
+- REQ-001: The product repository contains a reproducible static-site build
+  (`pnpm --filter @iolo.lol/web build`, the SvelteKit static application under
+  `apps/web`) that renders the canonical state under `data/signals/` into a
+  deployable directory with the same JSON semantics as the local server:
+  `index.html`, `api/v1/signals.json`, `api/v1/signals/<signalId>.json`, and
   `api/v1/signals/<signalId>.history.json` (paths mirror the product-owned
   data files).
 - REQ-002: The surface is published to GitHub Pages (build from workflow)
